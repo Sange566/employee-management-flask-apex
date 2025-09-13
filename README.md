@@ -69,7 +69,7 @@ This project showcases the ability to combine enterprise-level tooling (APEX) wi
 
 1. **Clone the repository**
 ```bash
-git clone https://github.com/YOUR-USERNAME/employee-management-flask-apex.git
+git clone https://github.com/Sange566/employee-management-flask-apex.git
 cd employee-management-flask-apex
 ```
 
