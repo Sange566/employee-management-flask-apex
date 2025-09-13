@@ -1,0 +1,78 @@
+{% extends "layout.html" %}
+
+{% block breadcrumbs %}
+<li class="breadcrumb-item active">
+  <i class="fas fa-users"></i> Employees
+</li>
+{% endblock %}
+
+{% block content %}
+
+<div class="row">
+  <div class="col-12">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div>
+        <h2 class="mb-1">
+          <i class="fas fa-users text-primary"></i> Employees
+        </h2>
+        <p class="text-muted mb-0">Manage employee information</p>
+      </div>
+      <div>
+        <a href="{{ url_for('employees_add') }}" class="btn btn-primary">
+          <i class="fas fa-plus"></i> Add Employee
+        </a>
+      </div>
+    </div>
+
+    <!-- Employees Table -->
+    <div class="card shadow-sm">
+      <div class="card-body">
+        {% if employees %}
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead class="table-light">
+                <tr>
+                  <th scope="col">ID</th>
+                  <th scope="col">First Name</th>
+                  <th scope="col">Last Name</th>
+                  <th scope="col">Department</th>
+                  <th scope="col" class="text-center">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for employee in employees %}
+                  <tr>
+                    <td class="fw-bold">{{ employee.t_empid }}</td>
+                    <td>{{ employee.t_emp_fname }}</td>
+                    <td>{{ employee.t_emp_lname }}</td>
+                    <td>
+                      <span class="badge bg-secondary">{{ employee.t_emp_dept }}</span>
+                    </td>
+                    <td class="text-center">
+                      <a href="{{ url_for('employees_edit', empid=employee.t_empid) }}" 
+                         class="btn btn-sm btn-outline-primary">
+                        <i class="fas fa-edit"></i> Edit
+                      </a>
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <div class="text-center py-5">
+            <i class="fas fa-users display-1 text-muted mb-3"></i>
+            <h4 class="text-muted">No Employees Found</h4>
+            <p class="text-muted">Get started by adding your first employee.</p>
+            <a href="{{ url_for('employees_add') }}" class="btn btn-primary">
+              <i class="fas fa-plus"></i> Add Employee
+            </a>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

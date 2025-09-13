@@ -1,0 +1,357 @@
+{% extends "layout.html" %}
+
+{% block title %}My Bookings - TechInnovators{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h3 mb-0">
+                        <i class="fas fa-history text-primary me-2"></i>
+                        My Booking History
+                    </h1>
+                    <p class="text-muted mb-0">View all your equipment bookings and returns.</p>
+                </div>
+                <div>
+                    <a href="{{ url_for('employee_dashboard') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>
+                        Back to Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Summary -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body text-center">
+                    <h4 class="card-title">{{ bookings|length }}</h4>
+                    <p class="card-text">Total Bookings</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body text-center">
+                    <h4 class="card-title">{{ bookings|selectattr('t_return_date', 'equalto', 'Not Returned')|list|length }}</h4>
+                    <p class="card-text">Currently Out</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body text-center">
+                    <h4 class="card-title">{{ bookings|rejectattr('t_return_date', 'equalto', 'Not Returned')|list|length }}</h4>
+                    <p class="card-text">Returned</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-danger text-white">
+                <div class="card-body text-center">
+                    <h4 class="card-title">
+                        {% set overdue_count = 0 %}
+                        {% for booking in bookings %}
+                            {% if booking.t_return_date == 'Not Returned' and booking.t_booking_date %}
+                                {% set booking_date = booking.t_booking_date|string %}
+                                {% set days_diff = (today|string|replace('-', '')|int - booking_date|replace('-', '')|int) %}
+                                {% if days_diff > 7 %}
+                                    {% set overdue_count = overdue_count + 1 %}
+                                {% endif %}
+                            {% endif %}
+                        {% endfor %}
+                        {{ overdue_count }}
+                    </h4>
+                    <p class="card-text">Overdue</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bookings Table -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-list me-2"></i>
+                        Booking History
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    {% if bookings %}
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Item</th>
+                                        <th>Booking Date</th>
+                                        <th>Return Date</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for booking in bookings %}
+                                    <tr class="{% if booking.t_return_date == 'Not Returned' and booking.t_booking_date %}{% set booking_date = booking.t_booking_date|string %}{% set days_diff = (today|string|replace('-', '')|int - booking_date|replace('-', '')|int) %}{% if days_diff > 7 %}table-danger{% endif %}{% endif %}">
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="me-3">
+                                                    <i class="fas fa-laptop fa-2x text-muted"></i>
+                                                </div>
+                                                <div>
+                                                    <strong>{{ booking.t_item_name or 'Unknown Item' }}</strong>
+                                                    <br>
+                                                    <small class="text-muted">ID: {{ booking.t_inventory_id }}</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="fw-medium">{{ booking.t_booking_date or 'N/A' }}</span>
+                                        </td>
+                                        <td>
+                                            {% if booking.t_return_date == 'Not Returned' %}
+                                                <span class="text-warning fw-medium">
+                                                    <i class="fas fa-clock me-1"></i>
+                                                    Not Returned
+                                                </span>
+                                            {% else %}
+                                                <span class="text-success fw-medium">
+                                                    <i class="fas fa-check me-1"></i>
+                                                    {{ booking.t_return_date }}
+                                                </span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if booking.t_return_date == 'Not Returned' %}
+                                                {% set booking_date = booking.t_booking_date|string %}
+                                                {% set days_diff = (today|string|replace('-', '')|int - booking_date|replace('-', '')|int) %}
+                                                {% if days_diff > 7 %}
+                                                    <span class="badge bg-danger fs-6">
+                                                        <i class="fas fa-exclamation-triangle me-1"></i>
+                                                        OVERDUE
+                                                    </span>
+                                                {% else %}
+                                                    <span class="badge bg-warning fs-6">
+                                                        <i class="fas fa-clock me-1"></i>
+                                                        OUT
+                                                    </span>
+                                                {% endif %}
+                                            {% else %}
+                                                <span class="badge bg-success fs-6">
+                                                    <i class="fas fa-check me-1"></i>
+                                                    RETURNED
+                                                </span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if booking.t_return_date == 'Not Returned' %}
+                                                <button class="btn btn-sm btn-success" 
+                                                        onclick="returnEquipment({{ booking.t_booking_id }}, '{{ booking.t_item_name }}')">
+                                                    <i class="fas fa-undo me-1"></i>
+                                                    Return
+                                                </button>
+                                            {% else %}
+                                                <span class="text-muted">
+                                                    <i class="fas fa-check-circle me-1"></i>
+                                                    Returned
+                                                </span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">No Bookings Found</h5>
+                            <p class="text-muted">You haven't made any equipment bookings yet.</p>
+                            <a href="{{ url_for('employee_inventory') }}" class="btn btn-primary">
+                                <i class="fas fa-search me-2"></i>
+                                Browse Available Equipment
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-bolt text-warning me-2"></i>
+                        Quick Actions
+                    </h5>
+                    <div class="row">
+                        <div class="col-md-4 mb-2">
+                            <a href="{{ url_for('employee_inventory') }}" class="btn btn-outline-primary w-100">
+                                <i class="fas fa-search me-2"></i>
+                                Browse Equipment
+                            </a>
+                        </div>
+                        <div class="col-md-4 mb-2">
+                            <a href="{{ url_for('employee_dashboard') }}" class="btn btn-outline-info w-100">
+                                <i class="fas fa-tachometer-alt me-2"></i>
+                                Dashboard
+                            </a>
+                        </div>
+                        <div class="col-md-4 mb-2">
+                            <button class="btn btn-outline-success w-100" onclick="showReturnModal()">
+                                <i class="fas fa-undo me-2"></i>
+                                Return Equipment
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Return Equipment Modal -->
+<div class="modal fade" id="returnModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Return Equipment</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Select the equipment you want to return:</p>
+                <div id="returnEquipmentList">
+                    <!-- Equipment list will be populated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Return Confirmation Modal -->
+<div class="modal fade" id="returnConfirmModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm Return</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to return <strong id="returnItemName"></strong>?</p>
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    This action cannot be undone. The equipment will be marked as returned immediately.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-success" id="confirmReturnBtn">
+                    <i class="fas fa-undo me-2"></i>
+                    Confirm Return
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let currentReturnBookingId = null;
+
+function showReturnModal() {
+    const returnList = document.getElementById('returnEquipmentList');
+    returnList.innerHTML = '';
+    
+    {% for booking in bookings %}
+        {% if booking.t_return_date == 'Not Returned' %}
+        const item = document.createElement('div');
+        item.className = 'form-check mb-2';
+        item.innerHTML = `
+            <input class="form-check-input" type="radio" name="returnItem" value="{{ booking.t_booking_id }}" id="return{{ booking.t_booking_id }}">
+            <label class="form-check-label" for="return{{ booking.t_booking_id }}">
+                <strong>{{ booking.t_item_name }}</strong><br>
+                <small class="text-muted">Booked: {{ booking.t_booking_date }}</small>
+            </label>
+        `;
+        returnList.appendChild(item);
+        {% endif %}
+    {% endfor %}
+    
+    if (returnList.children.length === 0) {
+        returnList.innerHTML = '<p class="text-muted">No equipment to return.</p>';
+    }
+    
+    new bootstrap.Modal(document.getElementById('returnModal')).show();
+}
+
+function returnEquipment(bookingId, itemName) {
+    currentReturnBookingId = bookingId;
+    document.getElementById('returnItemName').textContent = itemName;
+    new bootstrap.Modal(document.getElementById('returnConfirmModal')).show();
+}
+
+// Handle return confirmation
+document.getElementById('confirmReturnBtn').addEventListener('click', function() {
+    if (currentReturnBookingId) {
+        performReturn(currentReturnBookingId);
+    }
+});
+
+function performReturn(bookingId) {
+    fetch(`/employee/bookings/${bookingId}/return`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            showToast('Equipment returned successfully!', 'success');
+            bootstrap.Modal.getInstance(document.getElementById('returnConfirmModal')).hide();
+            setTimeout(() => location.reload(), 1000);
+        } else {
+            showToast(data.error || 'Failed to return equipment', 'danger');
+        }
+    })
+    .catch(error => {
+        showToast('Error returning equipment', 'danger');
+    });
+}
+
+function showToast(message, type) {
+    const toastContainer = document.getElementById('toast-container');
+    const toastId = 'toast-' + Date.now();
+    
+    const toastHTML = `
+        <div class="toast" id="${toastId}" role="alert">
+            <div class="toast-header">
+                <i class="fas fa-${type === 'success' ? 'check-circle text-success' : 'exclamation-triangle text-danger'} me-2"></i>
+                <strong class="me-auto">${type === 'success' ? 'Success' : 'Error'}</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body">${message}</div>
+        </div>
+    `;
+    
+    toastContainer.insertAdjacentHTML('beforeend', toastHTML);
+    const toast = new bootstrap.Toast(document.getElementById(toastId));
+    toast.show();
+    
+    // Remove toast element after it's hidden
+    document.getElementById(toastId).addEventListener('hidden.bs.toast', function() {
+        this.remove();
+    });
+}
+</script>
+{% endblock %}

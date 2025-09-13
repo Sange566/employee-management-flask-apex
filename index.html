@@ -1,0 +1,1775 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<!-- KPI Tiles -->
+<div class="row g-4 mb-5">
+  <div class="col-lg-3 col-md-6">
+    <div class="card bg-primary text-white shadow-sm h-100 kpi-card" data-aos="fade-up" data-aos-delay="100">
+      <div class="card-body d-flex flex-column justify-content-between p-4">
+        <div class="d-flex justify-content-between align-items-start mb-3">
+          <div class="kpi-icon">
+            <i class="fas fa-cube"></i>
+          </div>
+          <div class="trend-indicator">
+            <span class="badge bg-light text-success">
+              <i class="fas fa-arrow-up"></i> +12%
+            </span>
+          </div>
+        </div>
+        <div class="kpi-content">
+          <h2 class="mb-2 counter" data-target="{{ total_items or 0 }}">0</h2>
+          <p class="mb-3 fw-medium">Total Items</p>
+          <div class="progress" style="height: 6px;">
+            <div class="progress-bar bg-light" role="progressbar" style="width: 85%"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-3 col-md-6">
+    <div class="card bg-warning text-dark shadow-sm h-100 kpi-card" data-aos="fade-up" data-aos-delay="200">
+      <div class="card-body d-flex flex-column justify-content-between p-4">
+        <div class="d-flex justify-content-between align-items-start mb-3">
+          <div class="kpi-icon">
+            <i class="fas fa-clock"></i>
+          </div>
+          <div class="trend-indicator">
+            <span class="badge bg-light text-warning">
+              <i class="fas fa-minus"></i> 0%
+            </span>
+          </div>
+        </div>
+        <div class="kpi-content">
+          <h2 class="mb-2 counter" data-target="{{ currently_issued or 0 }}">0</h2>
+          <p class="mb-3 fw-medium">Currently Issued</p>
+          <div class="progress" style="height: 6px;">
+            <div class="progress-bar bg-dark" role="progressbar" style="width: 60%"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-3 col-md-6">
+    <div class="card bg-success text-white shadow-sm h-100 kpi-card" data-aos="fade-up" data-aos-delay="300">
+      <div class="card-body d-flex flex-column justify-content-between p-4">
+        <div class="d-flex justify-content-between align-items-start mb-3">
+          <div class="kpi-icon">
+            <i class="fas fa-users"></i>
+          </div>
+          <div class="trend-indicator">
+            <span class="badge bg-light text-success">
+              <i class="fas fa-arrow-up"></i> +5%
+            </span>
+          </div>
+        </div>
+        <div class="kpi-content">
+          <h2 class="mb-2 counter" data-target="{{ total_employees or 0 }}">0</h2>
+          <p class="mb-3 fw-medium">Employees</p>
+          <div class="progress" style="height: 6px;">
+            <div class="progress-bar bg-light" role="progressbar" style="width: 90%"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-3 col-md-6">
+    <div class="card bg-info text-white shadow-sm h-100 kpi-card" data-aos="fade-up" data-aos-delay="400">
+      <div class="card-body d-flex flex-column justify-content-between p-4">
+        <div class="d-flex justify-content-between align-items-start mb-3">
+          <div class="kpi-icon">
+            <i class="fas fa-calendar"></i>
+          </div>
+          <div class="trend-indicator">
+            <span class="badge bg-light text-info">
+              <i class="fas fa-arrow-up"></i> +18%
+            </span>
+          </div>
+        </div>
+        <div class="kpi-content">
+          <h2 class="mb-2 counter" data-target="{{ recent_bookings or 0 }}">0</h2>
+          <p class="mb-3 fw-medium">Recent Bookings</p>
+          <div class="progress" style="height: 6px;">
+            <div class="progress-bar bg-light" role="progressbar" style="width: 75%"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Welcome Section -->
+<div class="row mb-5">
+  <div class="col-12">
+    <div class="card shadow-sm border-0">
+      <div class="card-body p-5">
+        <div class="row align-items-center">
+          <div class="col-lg-8">
+            <h1 class="display-5 fw-bold text-primary mb-3">Welcome to TechInnovators</h1>
+            <h2 class="h4 text-muted mb-4">Inventory Management System</h2>
+            <p class="lead text-muted mb-0">
+              Efficiently manage your company's equipment and assets with our comprehensive inventory system. 
+              Track items, manage employee assignments, and generate detailed reports to optimize your resource allocation.
+            </p>
+          </div>
+          <div class="col-lg-4 text-center">
+            <div class="welcome-icon">
+              <i class="fas fa-building"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row mb-5">
+  <div class="col-12">
+    <h3 class="mb-4 fw-bold">Quick Actions</h3>
+  </div>
+  <div class="col-lg-3 col-md-6 mb-4">
+    <div class="card shadow-sm h-100 action-card border-0" data-aos="zoom-in" data-aos-delay="100">
+      <div class="card-body d-flex flex-column text-center p-4">
+        <div class="action-icon bg-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-3 mx-auto">
+          <i class="fas fa-plus"></i>
+        </div>
+        <h5 class="card-title mb-2">Add/Update Inventory</h5>
+        <p class="card-text text-muted mb-4">Manage your items</p>
+        <a href="{{ url_for('inventory_add') }}" class="btn btn-outline-primary btn-hover mt-auto">
+          <i class="fas fa-arrow-right me-2"></i>Add Item
+        </a>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-3 col-md-6 mb-4">
+    <div class="card shadow-sm h-100 action-card border-0" data-aos="zoom-in" data-aos-delay="200">
+      <div class="card-body d-flex flex-column text-center p-4">
+        <div class="action-icon bg-info rounded-circle d-inline-flex align-items-center justify-content-center mb-3 mx-auto">
+          <i class="fas fa-eye"></i>
+        </div>
+        <h5 class="card-title mb-2">View Inventory</h5>
+        <p class="card-text text-muted mb-4">Browse all items</p>
+        <a href="{{ url_for('inventory') }}" class="btn btn-outline-info btn-hover mt-auto">
+          <i class="fas fa-arrow-right me-2"></i>View Items
+        </a>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-3 col-md-6 mb-4">
+    <div class="card shadow-sm h-100 action-card border-0" data-aos="zoom-in" data-aos-delay="300">
+      <div class="card-body d-flex flex-column text-center p-4">
+        <div class="action-icon bg-success rounded-circle d-inline-flex align-items-center justify-content-center mb-3 mx-auto">
+          <i class="fas fa-user-plus"></i>
+        </div>
+        <h5 class="card-title mb-2">Manage Employees</h5>
+        <p class="card-text text-muted mb-4">Employee management</p>
+        <a href="{{ url_for('employees') }}" class="btn btn-outline-success btn-hover mt-auto">
+          <i class="fas fa-arrow-right me-2"></i>View Employees
+        </a>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-3 col-md-6 mb-4">
+    <div class="card shadow-sm h-100 action-card border-0" data-aos="zoom-in" data-aos-delay="400">
+      <div class="card-body d-flex flex-column text-center p-4">
+        <div class="action-icon bg-warning rounded-circle d-inline-flex align-items-center justify-content-center mb-3 mx-auto">
+          <i class="fas fa-chart-bar"></i>
+        </div>
+        <h5 class="card-title mb-2">Usage Report</h5>
+        <p class="card-text text-muted mb-4">View analytics</p>
+        <a href="{{ url_for('usage') }}" class="btn btn-outline-warning btn-hover mt-auto">
+          <i class="fas fa-arrow-right me-2"></i>View Report
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Charts Row -->
+<div class="row g-4 mb-5">
+  <!-- Monthly Booking Trends -->
+  <div class="col-lg-8">
+    <div class="card shadow-sm h-100 border-0" data-aos="fade-up" data-aos-delay="200">
+      <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center py-3">
+        <h5 class="card-title mb-0 fw-bold">
+          <i class="fas fa-chart-line text-primary me-2"></i>Monthly Booking Trends
+        </h5>
+        <div class="btn-group btn-group-sm" role="group">
+          <button type="button" class="btn btn-outline-primary active" data-period="month">Month</button>
+          <button type="button" class="btn btn-outline-primary" data-period="week">Week</button>
+          <button type="button" class="btn btn-outline-primary" data-period="day">Day</button>
+        </div>
+      </div>
+      <div class="card-body p-4">
+        <canvas id="bookingTrendsChart" height="100"></canvas>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Item Category Distribution -->
+  <div class="col-lg-4">
+    <div class="card shadow-sm h-100 border-0" data-aos="fade-up" data-aos-delay="300">
+      <div class="card-header bg-white border-bottom py-3">
+        <h5 class="card-title mb-0 fw-bold">
+          <i class="fas fa-chart-pie text-info me-2"></i>Item Categories
+        </h5>
+      </div>
+      <div class="card-body p-4">
+        <canvas id="categoryChart" height="200"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Main Content Row -->
+<div class="row g-4 mb-5">
+  <!-- Recent Activity -->
+  <div class="col-lg-6">
+    <div class="card shadow-sm h-100 border-0" data-aos="fade-up" data-aos-delay="400">
+      <div class="card-header bg-white border-bottom py-3">
+        <h5 class="card-title mb-0 fw-bold">
+          <i class="fas fa-clock text-primary me-2"></i>Recent Activity
+        </h5>
+      </div>
+      <div class="card-body p-4">
+        {% if recent_activity %}
+          <div class="list-group list-group-flush">
+            {% for activity in recent_activity[:5] %}
+              <div class="list-group-item border-0 px-0 py-3">
+                <div class="d-flex align-items-center">
+                  <div class="activity-icon me-3">
+                    {% if activity.type == 'booking' %}
+                      <i class="fas fa-arrow-up text-success"></i>
+                    {% else %}
+                      <i class="fas fa-arrow-down text-warning"></i>
+                    {% endif %}
+                  </div>
+                  <div class="flex-grow-1">
+                    <h6 class="mb-1 fw-medium">
+                      {% if activity.type == 'booking' %}
+                        {{ activity.item_name }} assigned to Employee {{ activity.employee_id }}
+                      {% else %}
+                        {{ activity.item_name }} returned by Employee {{ activity.employee_id }}
+                      {% endif %}
+                    </h6>
+                    <small class="text-muted">{{ activity.date }}</small>
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="text-center py-5">
+            <i class="fas fa-inbox display-4 text-muted mb-3"></i>
+            <p class="text-muted">No recent activity</p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Low Stock Alerts -->
+  <div class="col-lg-6">
+    <div class="card shadow-sm h-100 border-0" data-aos="fade-up" data-aos-delay="500">
+      <div class="card-header bg-white border-bottom py-3">
+        <h5 class="card-title mb-0 fw-bold">
+          <i class="fas fa-exclamation-triangle text-warning me-2"></i>Low Stock Alerts
+        </h5>
+      </div>
+      <div class="card-body p-4">
+        {% if low_stock_alerts %}
+          <div class="list-group list-group-flush">
+            {% for item in low_stock_alerts %}
+              <div class="list-group-item border-0 px-0 py-3">
+                <div class="d-flex align-items-center justify-content-between">
+                  <div>
+                    <h6 class="mb-1 fw-medium">{{ item.name }}</h6>
+                    <small class="text-muted">{{ item.category }}</small>
+                  </div>
+                  <div>
+                    {% if item.quantity == 0 %}
+                      <span class="badge bg-danger rounded-pill px-3 py-2">{{ item.quantity }}</span>
+                    {% elif item.quantity <= 2 %}
+                      <span class="badge bg-warning text-dark rounded-pill px-3 py-2">{{ item.quantity }}</span>
+                    {% else %}
+                      <span class="badge bg-secondary rounded-pill px-3 py-2">{{ item.quantity }}</span>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="text-center py-5">
+            <i class="fas fa-check-circle display-4 text-success mb-3"></i>
+            <p class="text-success fw-medium">No low stock items 🎉</p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Employee Usage Analytics -->
+<div class="row mb-5">
+  <div class="col-12">
+    <div class="card shadow-sm border-0" data-aos="fade-up" data-aos-delay="600">
+      <div class="card-header bg-white border-bottom py-3">
+        <h5 class="card-title mb-0 fw-bold">
+          <i class="fas fa-users text-success me-2"></i>Employee Usage Analytics
+        </h5>
+      </div>
+      <div class="card-body p-4">
+        <canvas id="employeeUsageChart" height="80"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Existing Features Section -->
+<!-- Equipment Management Section -->
+<div class="row g-4 mb-5">
+  <div class="col-12">
+    <div class="d-flex align-items-center mb-4">
+      <div class="me-3">
+        <i class="fas fa-cogs text-primary fs-2"></i>
+      </div>
+      <div>
+        <h3 class="mb-1 fw-bold">Equipment Management</h3>
+        <p class="text-muted mb-0">Manage employee bookings and equipment returns</p>
+      </div>
+    </div>
+  </div>
+  
+  <!-- View Employee Bookings Card -->
+  <div class="col-lg-6">
+    <div class="card h-100 shadow-sm border-0 equipment-card" data-aos="fade-up" data-aos-delay="100">
+      <div class="card-header bg-primary text-white border-0">
+        <div class="d-flex align-items-center">
+          <div class="me-3">
+            <i class="fas fa-search fs-4"></i>
+          </div>
+          <div>
+            <h4 class="card-title mb-0 fw-bold">View Employee Bookings</h4>
+            <small class="opacity-75">Fetch bookings via APEX API</small>
+          </div>
+        </div>
+      </div>
+      <div class="card-body p-4">
+        <div class="mb-4">
+          <p class="text-muted mb-3">Enter employee ID to fetch bookings via the APEX API.</p>
+          <div class="d-flex gap-2 mb-4">
+            <a href="{{ url_for('dashboard', empid='1') }}" class="btn btn-outline-info btn-sm">
+              <i class="fas fa-chart-line me-2"></i> View Demo Dashboard (Employee 1)
+            </a>
+          </div>
+        </div>
+        
+        <form id="viewBookingsForm" method="post" novalidate>
+          <div class="mb-4">
+            <label for="empid" class="form-label fw-bold">
+              <i class="fas fa-user me-2 text-primary"></i>Employee ID 
+              <span class="text-danger">*</span>
+            </label>
+            <input id="empid" name="empid" class="form-control form-control-lg" 
+                   placeholder="e.g. 1" required>
+            <div class="invalid-feedback" id="empidError">
+              Please enter an Employee ID.
+            </div>
+          </div>
+          <div class="d-grid">
+            <button type="submit" class="btn btn-primary btn-lg">
+              <i class="fas fa-search me-2"></i> View Bookings
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Return Card -->
+  <div class="col-lg-6">
+    <div class="card h-100 shadow-sm border-0 equipment-card" data-aos="fade-up" data-aos-delay="200">
+      <div class="card-header bg-success text-white border-0">
+        <div class="d-flex align-items-center">
+          <div class="me-3">
+            <i class="fas fa-undo fs-4"></i>
+          </div>
+          <div>
+            <h4 class="card-title mb-0 fw-bold">Quick Return</h4>
+            <small class="opacity-75">Admin override for returns</small>
+          </div>
+        </div>
+      </div>
+      <div class="card-body p-4">
+        <div class="mb-4">
+          <p class="text-muted mb-3">Directly mark a booking as returned (admin override or demo).</p>
+        </div>
+        
+        <form id="quickReturnForm" method="post" action="{{ url_for('do_return') }}" novalidate>
+          <div class="row g-3 mb-4">
+            <div class="col-md-4">
+              <label class="form-label fw-bold">
+                <i class="fas fa-ticket-alt me-2 text-success"></i>Booking ID 
+                <span class="text-danger">*</span>
+              </label>
+              <input name="bookid" class="form-control" placeholder="e.g. 1" required>
+              <div class="invalid-feedback" id="bookidError">
+                Booking ID is required.
+              </div>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-bold">
+                <i class="fas fa-user me-2 text-success"></i>Employee ID 
+                <span class="text-danger">*</span>
+              </label>
+              <input name="empid" class="form-control" placeholder="e.g. 1" required>
+              <div class="invalid-feedback" id="empidReturnError">
+                Employee ID is required.
+              </div>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-bold">
+                <i class="fas fa-calendar me-2 text-success"></i>Return Date
+              </label>
+              <input name="returndate" class="form-control datepicker" 
+                     placeholder="Today (leave blank)" data-input>
+            </div>
+          </div>
+          
+          <div class="d-grid mb-3">
+            <button type="submit" class="btn btn-success btn-lg">
+              <i class="fas fa-check-circle me-2"></i> Mark Returned
+            </button>
+          </div>
+        </form>
+        
+        <div class="alert alert-info border-0 bg-light">
+          <div class="d-flex align-items-center">
+            <i class="fas fa-info-circle text-info me-2"></i>
+            <small class="mb-0">Use for admin override only</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Demo Mode Notice -->
+{% if MOCK_MODE %}
+<div class="alert alert-info mt-4" role="alert">
+  <i class="fas fa-info-circle"></i>
+  <strong>Demo Mode Active:</strong> This application is running with mock data for demonstration purposes.
+  No actual API calls are being made to external endpoints.
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block scripts %}
+<!-- AOS Animation Library -->
+<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+
+<!-- Chart.js for data visualization -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+// Initialize AOS animations
+AOS.init({
+  duration: 800,
+  easing: 'ease-in-out',
+  once: true
+});
+
+// Counter animation for KPI cards
+function animateCounters() {
+  const counters = document.querySelectorAll('.counter');
+  
+  counters.forEach(counter => {
+    const target = parseInt(counter.getAttribute('data-target'));
+    const duration = 2000; // 2 seconds
+    const increment = target / (duration / 16); // 60fps
+    let current = 0;
+    
+    const timer = setInterval(() => {
+      current += increment;
+      if (current >= target) {
+        current = target;
+        clearInterval(timer);
+      }
+      counter.textContent = Math.floor(current);
+    }, 16);
+  });
+}
+
+// Initialize counter animation when page loads
+document.addEventListener('DOMContentLoaded', function() {
+  setTimeout(animateCounters, 500);
+  
+  // Set up real-time dashboard updates
+  setupDashboardUpdates();
+});
+
+// Real-time dashboard updates
+function setupDashboardUpdates() {
+  // Refresh dashboard data every 30 seconds
+  setInterval(refreshDashboardData, 30000);
+  
+  // Listen for storage events (from other tabs/pages)
+  window.addEventListener('storage', function(e) {
+    if (e.key === 'dashboard_update') {
+      refreshDashboardData();
+    }
+  });
+  
+  // Listen for focus events (when user returns to tab)
+  window.addEventListener('focus', function() {
+    refreshDashboardData();
+  });
+}
+
+// Refresh dashboard data from API
+function refreshDashboardData() {
+  fetch('/api/dashboard-data')
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        updateDashboardKPIs(data.data);
+        updateRecentActivity(data.data.recent_activity);
+        updateLowStockAlerts(data.data.low_stock_alerts);
+      }
+    })
+    .catch(error => {
+      console.log('Dashboard refresh failed:', error);
+    });
+}
+
+// Update KPI cards with new data
+function updateDashboardKPIs(data) {
+  const kpiCards = document.querySelectorAll('.counter');
+  kpiCards.forEach(card => {
+    const target = card.getAttribute('data-target');
+    const newValue = data[target] || 0;
+    const currentValue = parseInt(card.textContent) || 0;
+    
+    if (newValue !== currentValue) {
+      // Animate to new value
+      animateToValue(card, currentValue, newValue);
+    }
+  });
+}
+
+// Animate counter to new value
+function animateToValue(element, from, to) {
+  const duration = 1000;
+  const increment = (to - from) / (duration / 16);
+  let current = from;
+  
+  const timer = setInterval(() => {
+    current += increment;
+    if ((increment > 0 && current >= to) || (increment < 0 && current <= to)) {
+      current = to;
+      clearInterval(timer);
+    }
+    element.textContent = Math.floor(current);
+  }, 16);
+}
+
+// Update recent activity section
+function updateRecentActivity(activities) {
+  const activityContainer = document.querySelector('.recent-activity-list');
+  if (!activityContainer || !activities) return;
+  
+  // Clear existing activities
+  activityContainer.innerHTML = '';
+  
+  // Add new activities
+  activities.forEach(activity => {
+    const activityItem = document.createElement('div');
+    activityItem.className = 'd-flex align-items-center mb-3';
+    
+    const icon = activity.type === 'return' ? 'fa-undo text-success' : 'fa-calendar-plus text-primary';
+    const action = activity.type === 'return' ? 'Returned' : 'Booked';
+    
+    activityItem.innerHTML = `
+      <div class="activity-icon me-3">
+        <i class="fas ${icon}"></i>
+      </div>
+      <div class="flex-grow-1">
+        <div class="fw-medium">${action}: ${activity.item_name}</div>
+        <small class="text-muted">Employee ID: ${activity.employee_id} • ${activity.date}</small>
+      </div>
+    `;
+    
+    activityContainer.appendChild(activityItem);
+  });
+}
+
+// Update low stock alerts
+function updateLowStockAlerts(alerts) {
+  const alertsContainer = document.querySelector('.low-stock-alerts');
+  if (!alertsContainer || !alerts) return;
+  
+  // Clear existing alerts
+  alertsContainer.innerHTML = '';
+  
+  // Add new alerts
+  alerts.forEach(alert => {
+    const alertItem = document.createElement('div');
+    alertItem.className = 'd-flex justify-content-between align-items-center mb-2';
+    
+    const badgeClass = alert.quantity === 0 ? 'bg-danger' : 'bg-warning text-dark';
+    
+    alertItem.innerHTML = `
+      <div>
+        <strong>${alert.name}</strong>
+        <br>
+        <small class="text-muted">${alert.category}</small>
+      </div>
+      <span class="badge ${badgeClass}">${alert.quantity} left</span>
+    `;
+    
+    alertsContainer.appendChild(alertItem);
+  });
+}
+
+// Add hover effects to action cards
+document.addEventListener('DOMContentLoaded', function() {
+  const actionCards = document.querySelectorAll('.action-card');
+  
+  actionCards.forEach(card => {
+    card.addEventListener('mouseenter', function() {
+      this.style.transform = 'translateY(-5px)';
+      this.style.transition = 'all 0.3s ease';
+      this.style.boxShadow = '0 8px 25px rgba(0,0,0,0.15)';
+    });
+    
+    card.addEventListener('mouseleave', function() {
+      this.style.transform = 'translateY(0)';
+      this.style.boxShadow = '0 2px 10px rgba(0,0,0,0.1)';
+    });
+  });
+});
+
+// Add hover effects to KPI cards
+document.addEventListener('DOMContentLoaded', function() {
+  const kpiCards = document.querySelectorAll('.kpi-card');
+  
+  kpiCards.forEach(card => {
+    card.addEventListener('mouseenter', function() {
+      this.style.transform = 'scale(1.02)';
+      this.style.transition = 'all 0.3s ease';
+    });
+    
+    card.addEventListener('mouseleave', function() {
+      this.style.transform = 'scale(1)';
+    });
+  });
+});
+
+// Create mini charts for KPI cards (sparklines)
+function createSparklines() {
+  // This would integrate with Chart.js to create mini trend charts
+  // For now, we'll add placeholder sparkline data
+  const sparklineData = {
+    totalItems: [10, 12, 15, 18, 20, 22, 25],
+    currentlyIssued: [5, 6, 4, 7, 8, 6, 5],
+    employees: [15, 16, 17, 18, 19, 20, 22],
+    recentBookings: [8, 12, 10, 15, 18, 20, 25]
+  };
+  
+  // Add sparkline containers to KPI cards
+  const kpiCards = document.querySelectorAll('.kpi-card');
+  kpiCards.forEach((card, index) => {
+    const sparklineContainer = document.createElement('div');
+    sparklineContainer.className = 'sparkline-container mt-2';
+    sparklineContainer.style.height = '20px';
+    sparklineContainer.style.width = '100%';
+    card.querySelector('.card-body').appendChild(sparklineContainer);
+  });
+}
+
+// Initialize sparklines
+document.addEventListener('DOMContentLoaded', function() {
+  setTimeout(createSparklines, 1000);
+});
+
+// Touch Gesture Support
+document.addEventListener('DOMContentLoaded', function() {
+  // Add touch gesture support for mobile
+  addTouchGestures();
+  
+  // Add swipe functionality to cards
+  addSwipeSupport();
+  
+  // Add pull-to-refresh functionality
+  addPullToRefresh();
+});
+
+// Touch Gesture Functions
+function addTouchGestures() {
+  const cards = document.querySelectorAll('.card');
+  
+  cards.forEach(card => {
+    let startX, startY, endX, endY;
+    
+    card.addEventListener('touchstart', function(e) {
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+    }, { passive: true });
+    
+    card.addEventListener('touchend', function(e) {
+      endX = e.changedTouches[0].clientX;
+      endY = e.changedTouches[0].clientY;
+      
+      const deltaX = endX - startX;
+      const deltaY = endY - startY;
+      
+      // Swipe right (show more info)
+      if (Math.abs(deltaX) > Math.abs(deltaY) && deltaX > 50) {
+        showCardDetails(card);
+      }
+      // Swipe left (hide details)
+      else if (Math.abs(deltaX) > Math.abs(deltaY) && deltaX < -50) {
+        hideCardDetails(card);
+      }
+      // Swipe up (quick action)
+      else if (Math.abs(deltaY) > Math.abs(deltaX) && deltaY < -50) {
+        triggerQuickAction(card);
+      }
+    }, { passive: true });
+  });
+}
+
+function addSwipeSupport() {
+  const swipeContainers = document.querySelectorAll('.swipe-container');
+  
+  swipeContainers.forEach(container => {
+    let startX = 0;
+    let currentX = 0;
+    let isDragging = false;
+    
+    container.addEventListener('touchstart', function(e) {
+      startX = e.touches[0].clientX;
+      isDragging = true;
+      container.style.transition = 'none';
+    }, { passive: true });
+    
+    container.addEventListener('touchmove', function(e) {
+      if (!isDragging) return;
+      
+      currentX = e.touches[0].clientX - startX;
+      container.style.transform = `translateX(${currentX}px)`;
+    }, { passive: true });
+    
+    container.addEventListener('touchend', function() {
+      if (!isDragging) return;
+      
+      isDragging = false;
+      container.style.transition = 'transform 0.3s ease';
+      
+      if (Math.abs(currentX) > 100) {
+        // Swipe threshold reached
+        if (currentX > 0) {
+          // Swipe right
+          container.style.transform = 'translateX(100%)';
+        } else {
+          // Swipe left
+          container.style.transform = 'translateX(-100%)';
+        }
+      } else {
+        // Return to original position
+        container.style.transform = 'translateX(0)';
+      }
+    }, { passive: true });
+  });
+}
+
+function addPullToRefresh() {
+  let startY = 0;
+  let currentY = 0;
+  let isPulling = false;
+  const pullThreshold = 100;
+  
+  document.addEventListener('touchstart', function(e) {
+    if (window.scrollY === 0) {
+      startY = e.touches[0].clientY;
+      isPulling = true;
+    }
+  }, { passive: true });
+  
+  document.addEventListener('touchmove', function(e) {
+    if (!isPulling) return;
+    
+    currentY = e.touches[0].clientY - startY;
+    
+    if (currentY > 0) {
+      // Show pull-to-refresh indicator
+      const pullIndicator = document.getElementById('pullIndicator');
+      if (pullIndicator) {
+        const progress = Math.min(currentY / pullThreshold, 1);
+        pullIndicator.style.opacity = progress;
+        pullIndicator.style.transform = `scale(${progress})`;
+      }
+    }
+  }, { passive: true });
+  
+  document.addEventListener('touchend', function() {
+    if (!isPulling) return;
+    
+    isPulling = false;
+    
+    if (currentY > pullThreshold) {
+      // Trigger refresh
+      refreshData();
+    }
+    
+    // Hide pull indicator
+    const pullIndicator = document.getElementById('pullIndicator');
+    if (pullIndicator) {
+      pullIndicator.style.opacity = '0';
+      pullIndicator.style.transform = 'scale(0)';
+    }
+  }, { passive: true });
+}
+
+// Card interaction functions
+function showCardDetails(card) {
+  card.classList.add('card-expanded');
+  
+  // Add haptic feedback if available
+  if (navigator.vibrate) {
+    navigator.vibrate(50);
+  }
+  
+  // Show additional details
+  const details = card.querySelector('.card-details');
+  if (details) {
+    details.style.display = 'block';
+  }
+}
+
+function hideCardDetails(card) {
+  card.classList.remove('card-expanded');
+  
+  // Hide additional details
+  const details = card.querySelector('.card-details');
+  if (details) {
+    details.style.display = 'none';
+  }
+}
+
+function triggerQuickAction(card) {
+  // Find the primary action button in the card
+  const actionBtn = card.querySelector('.btn-primary, .btn-outline-primary');
+  if (actionBtn) {
+    actionBtn.click();
+    
+    // Add haptic feedback
+    if (navigator.vibrate) {
+      navigator.vibrate(100);
+    }
+  }
+}
+
+function refreshData() {
+  // Show loading indicator
+  const loadingIndicator = document.getElementById('loadingIndicator');
+  if (loadingIndicator) {
+    loadingIndicator.style.display = 'block';
+  }
+  
+  // Simulate data refresh
+  setTimeout(() => {
+    // Refresh charts
+    if (window.bookingTrendsChart) {
+      window.bookingTrendsChart.update();
+    }
+    if (window.categoryChart) {
+      window.categoryChart.update();
+    }
+    if (window.employeeUsageChart) {
+      window.employeeUsageChart.update();
+    }
+    
+    // Hide loading indicator
+    if (loadingIndicator) {
+      loadingIndicator.style.display = 'none';
+    }
+    
+    // Show success message
+    showToast('Data refreshed successfully!', 'success');
+  }, 1000);
+}
+
+// Toast notification system
+function showToast(message, type = 'info') {
+  const toast = document.createElement('div');
+  toast.className = `toast-notification toast-${type}`;
+  toast.innerHTML = `
+    <div class="toast-content">
+      <i class="fas fa-${getToastIcon(type)}"></i>
+      <span>${message}</span>
+    </div>
+  `;
+  
+  document.body.appendChild(toast);
+  
+  // Show toast
+  setTimeout(() => {
+    toast.classList.add('show');
+  }, 100);
+  
+  // Hide toast after 3 seconds
+  setTimeout(() => {
+    toast.classList.remove('show');
+    setTimeout(() => {
+      document.body.removeChild(toast);
+    }, 300);
+  }, 3000);
+}
+
+function getToastIcon(type) {
+  const icons = {
+    success: 'check-circle',
+    error: 'times-circle',
+    warning: 'exclamation-triangle',
+    info: 'info-circle'
+  };
+  return icons[type] || 'info-circle';
+}
+
+// Chart.js Implementation
+document.addEventListener('DOMContentLoaded', function() {
+  // Initialize all charts
+  initializeBookingTrendsChart();
+  initializeCategoryChart();
+  initializeEmployeeUsageChart();
+  
+  // Period toggle functionality
+  const periodButtons = document.querySelectorAll('[data-period]');
+  periodButtons.forEach(button => {
+    button.addEventListener('click', function() {
+      periodButtons.forEach(btn => btn.classList.remove('active'));
+      this.classList.add('active');
+      updateBookingTrendsChart(this.dataset.period);
+    });
+  });
+});
+
+// Booking Trends Chart
+function initializeBookingTrendsChart() {
+  const ctx = document.getElementById('bookingTrendsChart');
+  if (!ctx) return;
+  
+  window.bookingTrendsChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+      datasets: [{
+        label: 'Bookings',
+        data: [12, 19, 15, 25, 22, 30, 28, 35, 32, 28, 24, 31],
+        borderColor: '#0d6efd',
+        backgroundColor: 'rgba(13, 110, 253, 0.1)',
+        borderWidth: 3,
+        fill: true,
+        tension: 0.4,
+        pointBackgroundColor: '#0d6efd',
+        pointBorderColor: '#fff',
+        pointBorderWidth: 2,
+        pointRadius: 6,
+        pointHoverRadius: 8
+      }, {
+        label: 'Returns',
+        data: [8, 15, 12, 20, 18, 25, 22, 28, 26, 22, 18, 24],
+        borderColor: '#198754',
+        backgroundColor: 'rgba(25, 135, 84, 0.1)',
+        borderWidth: 3,
+        fill: true,
+        tension: 0.4,
+        pointBackgroundColor: '#198754',
+        pointBorderColor: '#fff',
+        pointBorderWidth: 2,
+        pointRadius: 6,
+        pointHoverRadius: 8
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'top',
+          labels: {
+            usePointStyle: true,
+            padding: 20
+          }
+        },
+        tooltip: {
+          mode: 'index',
+          intersect: false,
+          backgroundColor: 'rgba(0,0,0,0.8)',
+          titleColor: '#fff',
+          bodyColor: '#fff',
+          borderColor: '#0d6efd',
+          borderWidth: 1
+        }
+      },
+      scales: {
+        x: {
+          grid: {
+            display: false
+          },
+          ticks: {
+            color: '#6c757d'
+          }
+        },
+        y: {
+          beginAtZero: true,
+          grid: {
+            color: 'rgba(0,0,0,0.1)'
+          },
+          ticks: {
+            color: '#6c757d'
+          }
+        }
+      },
+      interaction: {
+        mode: 'nearest',
+        axis: 'x',
+        intersect: false
+      }
+    }
+  });
+}
+
+// Category Distribution Chart
+function initializeCategoryChart() {
+  const ctx = document.getElementById('categoryChart');
+  if (!ctx) return;
+  
+  window.categoryChart = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Laptops', 'Projectors', 'Cameras', 'Tablets', 'Accessories'],
+      datasets: [{
+        data: [35, 25, 20, 15, 5],
+        backgroundColor: [
+          '#0d6efd',
+          '#198754',
+          '#fd7e14',
+          '#dc3545',
+          '#6f42c1'
+        ],
+        borderWidth: 0,
+        hoverOffset: 10
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: {
+            usePointStyle: true,
+            padding: 15,
+            font: {
+              size: 12
+            }
+          }
+        },
+        tooltip: {
+          backgroundColor: 'rgba(0,0,0,0.8)',
+          titleColor: '#fff',
+          bodyColor: '#fff',
+          callbacks: {
+            label: function(context) {
+              const total = context.dataset.data.reduce((a, b) => a + b, 0);
+              const percentage = ((context.parsed / total) * 100).toFixed(1);
+              return `${context.label}: ${context.parsed} (${percentage}%)`;
+            }
+          }
+        }
+      },
+      cutout: '60%'
+    }
+  });
+}
+
+// Employee Usage Chart
+function initializeEmployeeUsageChart() {
+  const ctx = document.getElementById('employeeUsageChart');
+  if (!ctx) return;
+  
+  window.employeeUsageChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['John Doe', 'Jane Smith', 'Mike Johnson', 'Sarah Wilson', 'David Brown', 'Lisa Davis'],
+      datasets: [{
+        label: 'Items Booked',
+        data: [8, 12, 6, 15, 9, 11],
+        backgroundColor: [
+          'rgba(13, 110, 253, 0.8)',
+          'rgba(25, 135, 84, 0.8)',
+          'rgba(253, 126, 20, 0.8)',
+          'rgba(220, 53, 69, 0.8)',
+          'rgba(111, 66, 193, 0.8)',
+          'rgba(32, 201, 151, 0.8)'
+        ],
+        borderColor: [
+          '#0d6efd',
+          '#198754',
+          '#fd7e14',
+          '#dc3545',
+          '#6f42c1',
+          '#20c997'
+        ],
+        borderWidth: 2,
+        borderRadius: 8,
+        borderSkipped: false
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false
+        },
+        tooltip: {
+          backgroundColor: 'rgba(0,0,0,0.8)',
+          titleColor: '#fff',
+          bodyColor: '#fff',
+          borderColor: '#0d6efd',
+          borderWidth: 1
+        }
+      },
+      scales: {
+        x: {
+          grid: {
+            display: false
+          },
+          ticks: {
+            color: '#6c757d',
+            maxRotation: 45
+          }
+        },
+        y: {
+          beginAtZero: true,
+          grid: {
+            color: 'rgba(0,0,0,0.1)'
+          },
+          ticks: {
+            color: '#6c757d',
+            stepSize: 2
+          }
+        }
+      }
+    }
+  });
+}
+
+// Update booking trends chart based on period
+function updateBookingTrendsChart(period) {
+  if (!window.bookingTrendsChart) return;
+  
+  let labels, bookingData, returnData;
+  
+  switch(period) {
+    case 'week':
+      labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+      bookingData = [5, 8, 12, 15, 18, 10, 7];
+      returnData = [3, 6, 9, 12, 15, 8, 5];
+      break;
+    case 'day':
+      labels = ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00'];
+      bookingData = [2, 1, 8, 15, 12, 6];
+      returnData = [1, 0, 5, 10, 8, 4];
+      break;
+    default: // month
+      labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      bookingData = [12, 19, 15, 25, 22, 30, 28, 35, 32, 28, 24, 31];
+      returnData = [8, 15, 12, 20, 18, 25, 22, 28, 26, 22, 18, 24];
+  }
+  
+  window.bookingTrendsChart.data.labels = labels;
+  window.bookingTrendsChart.data.datasets[0].data = bookingData;
+  window.bookingTrendsChart.data.datasets[1].data = returnData;
+  window.bookingTrendsChart.update('active');
+}
+</script>
+
+<style>
+/* Enhanced KPI Card Styles */
+.kpi-card {
+  transition: all 0.3s ease;
+  border: none;
+  overflow: hidden;
+  border-radius: 12px;
+}
+
+.kpi-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.15) !important;
+}
+
+.kpi-icon {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(255,255,255,0.2);
+  border-radius: 12px;
+  font-size: 1.5rem;
+}
+
+.kpi-content h2 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.kpi-content p {
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.kpi-card .trend-indicator {
+  opacity: 0.9;
+  font-size: 0.75rem;
+}
+
+.kpi-card .progress {
+  background-color: rgba(255,255,255,0.2);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.kpi-card .progress-bar {
+  border-radius: 6px;
+}
+
+/* Action Card Styles */
+.action-card {
+  transition: all 0.3s ease;
+  border: none;
+  cursor: pointer;
+  border-radius: 12px;
+}
+
+.action-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.15) !important;
+}
+
+.action-icon {
+  transition: all 0.3s ease;
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  border-radius: 16px;
+}
+
+.action-card:hover .action-icon {
+  transform: scale(1.05);
+}
+
+.btn-hover {
+  transition: all 0.3s ease;
+  border-radius: 8px;
+  font-weight: 500;
+  padding: 0.75rem 1.5rem;
+}
+
+.btn-hover:hover {
+  transform: translateX(3px);
+}
+
+/* Welcome Section Styles */
+.welcome-icon {
+  width: 120px;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-radius: 20px;
+  font-size: 3rem;
+  color: #6c757d;
+  margin: 0 auto;
+}
+
+/* Activity Icon Styles */
+.activity-icon {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0,0,0,0.05);
+  border-radius: 8px;
+  font-size: 0.875rem;
+}
+
+/* Sparkline Styles */
+.sparkline-container {
+  background: linear-gradient(90deg, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.1) 100%);
+  border-radius: 10px;
+  position: relative;
+  overflow: hidden;
+}
+
+.sparkline-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.2) 50%, transparent 100%);
+  animation: sparkle 2s infinite;
+}
+
+@keyframes sparkle {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* Enhanced Card Animations */
+.card {
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .kpi-card:hover {
+    transform: none;
+  }
+  
+  .action-card:hover {
+    transform: none;
+  }
+  
+  .btn-hover:hover {
+    transform: none;
+  }
+  
+  /* Touch-friendly interactions */
+  .kpi-card:active {
+    transform: scale(0.98);
+    transition: transform 0.1s ease;
+  }
+  
+  .action-card:active {
+    transform: scale(0.95);
+    transition: transform 0.1s ease;
+  }
+  
+  /* Mobile-optimized charts */
+  #bookingTrendsChart,
+  #categoryChart,
+  #employeeUsageChart {
+    height: 200px !important;
+  }
+  
+  /* Mobile-friendly buttons */
+  .btn {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Improved spacing for mobile */
+  .card-body {
+    padding: 1.5rem;
+  }
+  
+  .kpi-content h2 {
+    font-size: 2rem;
+  }
+  
+  .welcome-icon {
+    width: 80px;
+    height: 80px;
+    font-size: 2rem;
+  }
+  
+  .action-icon {
+    width: 48px;
+    height: 48px;
+    font-size: 1.25rem;
+  }
+  
+  .kpi-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 1.25rem;
+  }
+}
+
+/* Tablet Responsiveness */
+@media (max-width: 992px) and (min-width: 769px) {
+  .kpi-card:hover {
+    transform: translateY(-1px);
+  }
+  
+  .action-card:hover {
+    transform: translateY(-2px);
+  }
+  
+  /* Tablet-optimized charts */
+  #bookingTrendsChart {
+    height: 250px !important;
+  }
+  
+  #categoryChart {
+    height: 200px !important;
+  }
+  
+  #employeeUsageChart {
+    height: 180px !important;
+  }
+}
+
+/* Touch Device Optimizations */
+@media (hover: none) and (pointer: coarse) {
+  /* Remove hover effects on touch devices */
+  .kpi-card:hover,
+  .action-card:hover,
+  .btn-hover:hover {
+    transform: none;
+    box-shadow: inherit;
+  }
+  
+  /* Add active states for touch feedback */
+  .kpi-card:active {
+    transform: scale(0.98);
+    transition: transform 0.1s ease;
+  }
+  
+  .action-card:active {
+    transform: scale(0.95);
+    transition: transform 0.1s ease;
+  }
+  
+  .btn:active {
+    transform: scale(0.95);
+    transition: transform 0.1s ease;
+  }
+  
+  /* Larger touch targets */
+  .nav-link {
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+  }
+  
+  .btn {
+    min-height: 48px;
+    padding: 0.75rem 1.5rem;
+  }
+  
+  /* Swipe-friendly cards */
+  .card {
+    touch-action: pan-y;
+  }
+}
+
+/* High DPI Display Optimizations */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .kpi-card,
+  .action-card {
+    border: 0.5px solid rgba(0,0,0,0.1);
+  }
+}
+
+/* Dark Mode Support (if needed) */
+@media (prefers-color-scheme: dark) {
+  .card {
+    background-color: #2d3748;
+    border-color: #4a5568;
+  }
+  
+  .card-header {
+    background-color: #4a5568;
+    border-bottom-color: #718096;
+  }
+  
+  .text-muted {
+    color: #a0aec0 !important;
+  }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  .kpi-card,
+  .action-card,
+  .btn-hover,
+  .sidebar *,
+  .sparkline-container::before {
+    transition: none;
+    animation: none;
+  }
+  
+  .counter {
+    animation: none;
+  }
+  
+  .sparkline-container::before {
+    display: none;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .sidebar,
+  .topbar,
+  .btn,
+  .dropdown,
+  .notification-dropdown,
+  .search-container {
+    display: none !important;
+  }
+  
+  .main-content {
+    margin-left: 0 !important;
+  }
+  
+  .card {
+    break-inside: avoid;
+    box-shadow: none;
+    border: 1px solid #000;
+  }
+  
+  .chart-container {
+    display: none;
+  }
+}
+
+/* Toast Notification Styles */
+.toast-notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 9999;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  padding: 1rem;
+  min-width: 300px;
+  transform: translateX(100%);
+  opacity: 0;
+  transition: all 0.3s ease;
+}
+
+.toast-notification.show {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.toast-content {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.toast-success {
+  border-left: 4px solid #198754;
+}
+
+.toast-error {
+  border-left: 4px solid #dc3545;
+}
+
+.toast-warning {
+  border-left: 4px solid #ffc107;
+}
+
+.toast-info {
+  border-left: 4px solid #0d6efd;
+}
+
+.toast-success .toast-content i {
+  color: #198754;
+}
+
+.toast-error .toast-content i {
+  color: #dc3545;
+}
+
+.toast-warning .toast-content i {
+  color: #ffc107;
+}
+
+.toast-info .toast-content i {
+  color: #0d6efd;
+}
+
+/* Card Expansion Styles */
+.card-expanded {
+  transform: scale(1.02);
+  z-index: 10;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.2) !important;
+}
+
+.card-details {
+  display: none;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(0,0,0,0.1);
+}
+
+/* Pull-to-Refresh Indicator */
+#pullIndicator {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%) scale(0);
+  z-index: 9999;
+  background: rgba(0,0,0,0.8);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  opacity: 0;
+  transition: all 0.3s ease;
+}
+
+/* Loading Indicator */
+#loadingIndicator {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 9999;
+  background: rgba(255,255,255,0.9);
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  display: none;
+}
+
+/* Swipe Container Styles */
+.swipe-container {
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.3s ease;
+}
+
+/* Enhanced Touch Feedback */
+@media (hover: none) and (pointer: coarse) {
+  .card:active {
+    background-color: rgba(0,0,0,0.05);
+    transition: background-color 0.1s ease;
+  }
+  
+  .btn:active {
+    background-color: rgba(0,0,0,0.1);
+    transition: background-color 0.1s ease;
+  }
+  
+  .nav-link:active {
+    background-color: rgba(255,255,255,0.2);
+    transition: background-color 0.1s ease;
+  }
+}
+
+/* Improved Focus States for Accessibility */
+.btn:focus,
+.nav-link:focus,
+.form-control:focus {
+  outline: 2px solid #0d6efd;
+  outline-offset: 2px;
+}
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: high) {
+  .card {
+    border: 2px solid #000;
+  }
+  
+  .btn {
+    border: 2px solid #000;
+  }
+  
+  .text-muted {
+    color: #000 !important;
+  }
+}
+
+/* Equipment Management Cards */
+.equipment-card {
+  transition: all 0.3s ease;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.equipment-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.15) !important;
+}
+
+.equipment-card .card-header {
+  border-radius: 12px 12px 0 0;
+  padding: 1.5rem;
+}
+
+.equipment-card .card-body {
+  border-radius: 0 0 12px 12px;
+}
+
+.equipment-card .form-control {
+  border-radius: 8px;
+  border: 2px solid #e9ecef;
+  transition: all 0.3s ease;
+}
+
+.equipment-card .form-control:focus {
+  border-color: #0d6efd;
+  box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+.equipment-card .btn {
+  border-radius: 8px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.equipment-card .btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.equipment-card .alert {
+  border-radius: 8px;
+  border: none;
+}
+
+/* Equipment Management Section Header */
+.equipment-management-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 12px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+}
+
+.equipment-management-header h3 {
+  margin-bottom: 0.5rem;
+}
+
+.equipment-management-header p {
+  opacity: 0.9;
+  margin-bottom: 0;
+}
+</style>
+{% endblock %}

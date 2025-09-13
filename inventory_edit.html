@@ -1,0 +1,87 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<div class="row">
+  <div class="col-lg-8 offset-lg-2">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div>
+        <h2 class="mb-1">
+          <i class="fas fa-edit text-warning"></i> Edit Inventory Item
+        </h2>
+        <p class="text-muted mb-0">Update inventory item information</p>
+      </div>
+      <div>
+        <a href="{{ url_for('inventory') }}" class="btn btn-outline-secondary">
+          <i class="fas fa-arrow-left"></i> Back to Inventory
+        </a>
+      </div>
+    </div>
+
+    <!-- Edit Inventory Form -->
+    <div class="card shadow-sm">
+      <div class="card-header bg-warning text-dark">
+        <h5 class="card-title mb-0">
+          <i class="fas fa-edit"></i> Item Information
+        </h5>
+      </div>
+      <div class="card-body">
+        <form method="post" novalidate>
+          <div class="row g-3">
+            <div class="col-12">
+              <label for="t_item_name" class="form-label fw-bold">
+                Item Name <span class="text-danger">*</span>
+              </label>
+              <input type="text" 
+                     class="form-control" 
+                     id="t_item_name" 
+                     name="t_item_name" 
+                     value="{{ item.t_item_name }}"
+                     placeholder="Enter item name"
+                     required>
+            </div>
+            <div class="col-md-6">
+              <label for="t_item_category" class="form-label fw-bold">
+                Category <span class="text-danger">*</span>
+              </label>
+              <select class="form-select" id="t_item_category" name="t_item_category" required>
+                <option value="">Select Category</option>
+                <option value="Electronics" {% if item.t_item_category == 'Electronics' %}selected{% endif %}>Electronics</option>
+                <option value="Tools" {% if item.t_item_category == 'Tools' %}selected{% endif %}>Tools</option>
+                <option value="Furniture" {% if item.t_item_category == 'Furniture' %}selected{% endif %}>Furniture</option>
+                <option value="Office Supplies" {% if item.t_item_category == 'Office Supplies' %}selected{% endif %}>Office Supplies</option>
+                <option value="Software" {% if item.t_item_category == 'Software' %}selected{% endif %}>Software</option>
+                <option value="Hardware" {% if item.t_item_category == 'Hardware' %}selected{% endif %}>Hardware</option>
+                <option value="Accessories" {% if item.t_item_category == 'Accessories' %}selected{% endif %}>Accessories</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label for="t_quantity" class="form-label fw-bold">
+                Quantity <span class="text-danger">*</span>
+              </label>
+              <input type="number" 
+                     class="form-control" 
+                     id="t_quantity" 
+                     name="t_quantity" 
+                     value="{{ item.t_quantity }}"
+                     min="0"
+                     placeholder="Enter quantity"
+                     required>
+            </div>
+          </div>
+          
+          <div class="mt-4">
+            <button type="submit" class="btn btn-warning px-4">
+              <i class="fas fa-save"></i> Update Item
+            </button>
+            <a href="{{ url_for('inventory') }}" class="btn btn-outline-secondary ms-2">
+              <i class="fas fa-times"></i> Cancel
+            </a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,401 @@
+{% extends "layout.html" %}
+
+{% block breadcrumbs %}
+<li class="breadcrumb-item active">
+  <i class="fas fa-cube"></i> Inventory
+</li>
+{% endblock %}
+
+{% block content %}
+
+<div class="row">
+  <div class="col-12">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div>
+        <h2 class="mb-1">
+          <i class="fas fa-cube text-info"></i> Inventory
+        </h2>
+        <p class="text-muted mb-0">Manage inventory items and quantities</p>
+      </div>
+      <div>
+        <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#addItemModal">
+          <i class="fas fa-plus"></i> Add Item
+        </button>
+      </div>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="card shadow-sm mb-4">
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-6">
+            <div class="input-group">
+              <span class="input-group-text">
+                <i class="fas fa-search"></i>
+              </span>
+              <input type="text" 
+                     class="form-control" 
+                     id="searchInput" 
+                     placeholder="Search items by name, category, or ID...">
+            </div>
+          </div>
+          <div class="col-md-6 text-end">
+            <small class="text-muted">
+              <span id="itemCount">{{ inventory|length if inventory else 0 }}</span> items found
+            </small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Inventory Table -->
+    <div class="card shadow-sm">
+      <div class="card-body">
+        {% if inventory %}
+          <div class="table-responsive">
+            <table class="table table-hover" id="inventoryTable">
+              <thead class="table-light">
+                <tr>
+                  <th scope="col">ID</th>
+                  <th scope="col">Item Name</th>
+                  <th scope="col">Category</th>
+                  <th scope="col">Quantity</th>
+                  <th scope="col" class="text-center">Status</th>
+                  <th scope="col" class="text-center">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for item in inventory %}
+                  <tr class="{% if (item.t_item_quantity or item.t_quantity or item.quantity or 0) == 0 %}table-danger{% elif (item.t_item_quantity or item.t_quantity or item.quantity or 0) < 3 %}table-warning{% endif %}">
+                    <td class="fw-bold">{{ item.t_item_id or item.item_id or item.id }}</td>
+                    <td>{{ item.t_item_name or item.item_name or item.name }}</td>
+                    <td>
+                      <span class="badge bg-secondary">{{ item.t_item_category or item.item_category or item.category or 'N/A' }}</span>
+                    </td>
+                    <td class="fw-bold">{{ item.t_item_quantity or item.t_quantity or item.quantity or 0 }}</td>
+                    <td class="text-center">
+                      {% set quantity = item.t_item_quantity or item.t_quantity or item.quantity or 0 %}
+                      {% if quantity == 0 %}
+                        <span class="badge bg-danger">Out of Stock</span>
+                      {% elif quantity < 3 %}
+                        <span class="badge bg-warning text-dark">Low Stock</span>
+                      {% else %}
+                        <span class="badge bg-success">In Stock</span>
+                      {% endif %}
+                    </td>
+                    <td class="text-center">
+                      <button type="button" 
+                              class="btn btn-sm btn-outline-primary" 
+                              data-bs-toggle="modal" 
+                              data-bs-target="#editItemModal"
+                              onclick="editItem({{ item.t_item_id or item.item_id or item.id }}, '{{ (item.t_item_name or item.item_name or item.name)|replace("'", "\\'") }}', {{ item.t_item_quantity or item.t_quantity or item.quantity or 0 }}, '{{ (item.t_item_category or item.item_category or item.category or '')|replace("'", "\\'") }}')">
+                        <i class="fas fa-edit"></i> Edit
+                      </button>
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <div class="text-center py-5">
+            <i class="fas fa-cube display-1 text-muted mb-3"></i>
+            <h4 class="text-muted">No Inventory Items Found</h4>
+            <p class="text-muted">Get started by adding your first inventory item.</p>
+            <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#addItemModal">
+              <i class="fas fa-plus"></i> Add Item
+            </button>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add Item Modal -->
+<div class="modal fade" id="addItemModal" tabindex="-1" aria-labelledby="addItemModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-info text-white">
+        <h5 class="modal-title" id="addItemModalLabel">
+          <i class="fas fa-plus-circle"></i> Add New Item
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form id="addItemForm">
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="addItemName" class="form-label fw-bold">
+              Item Name <span class="text-danger">*</span>
+            </label>
+            <input type="text" class="form-control" id="addItemName" name="t_item_name" required>
+          </div>
+          <div class="mb-3">
+            <label for="addItemCategory" class="form-label fw-bold">
+              Category <span class="text-danger">*</span>
+            </label>
+            <select class="form-select" id="addItemCategory" name="t_item_category" required>
+              <option value="">Select Category</option>
+              <option value="Electronics">Electronics</option>
+              <option value="Tools">Tools</option>
+              <option value="Furniture">Furniture</option>
+              <option value="Office Supplies">Office Supplies</option>
+              <option value="Software">Software</option>
+              <option value="Hardware">Hardware</option>
+              <option value="Accessories">Accessories</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="addItemQuantity" class="form-label fw-bold">
+              Quantity <span class="text-danger">*</span>
+            </label>
+            <input type="number" class="form-control" id="addItemQuantity" name="t_quantity" min="0" required>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-info">
+            <i class="fas fa-save"></i> Add Item
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Item Modal -->
+<div class="modal fade" id="editItemModal" tabindex="-1" aria-labelledby="editItemModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-warning text-dark">
+        <h5 class="modal-title" id="editItemModalLabel">
+          <i class="fas fa-edit"></i> Edit Item
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form id="editItemForm">
+        <input type="hidden" id="editItemId" name="t_item_id">
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="editItemName" class="form-label fw-bold">
+              Item Name <span class="text-danger">*</span>
+            </label>
+            <input type="text" class="form-control" id="editItemName" name="t_item_name" required>
+          </div>
+          <div class="mb-3">
+            <label for="editItemCategory" class="form-label fw-bold">
+              Category <span class="text-danger">*</span>
+            </label>
+            <select class="form-select" id="editItemCategory" name="t_item_category" required>
+              <option value="">Select Category</option>
+              <option value="Electronics">Electronics</option>
+              <option value="Tools">Tools</option>
+              <option value="Furniture">Furniture</option>
+              <option value="Office Supplies">Office Supplies</option>
+              <option value="Software">Software</option>
+              <option value="Hardware">Hardware</option>
+              <option value="Accessories">Accessories</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="editItemQuantity" class="form-label fw-bold">
+              Quantity <span class="text-danger">*</span>
+            </label>
+            <input type="number" class="form-control" id="editItemQuantity" name="t_quantity" min="0" required>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-warning">
+            <i class="fas fa-save"></i> Update Item
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('searchInput');
+    const table = document.getElementById('inventoryTable');
+    const itemCount = document.getElementById('itemCount');
+    
+    // Search functionality
+    if (searchInput && table) {
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+            let visibleCount = 0;
+            
+            for (let i = 0; i < rows.length; i++) {
+                const row = rows[i];
+                const cells = row.getElementsByTagName('td');
+                let found = false;
+                
+                // Search in ID, Name, Category, and Quantity
+                for (let j = 0; j < cells.length - 1; j++) { // Exclude Actions column
+                    const cellText = cells[j].textContent.toLowerCase();
+                    if (cellText.includes(searchTerm)) {
+                        found = true;
+                        break;
+                    }
+                }
+                
+                if (found) {
+                    row.style.display = '';
+                    visibleCount++;
+                } else {
+                    row.style.display = 'none';
+                }
+            }
+            
+            // Update item count
+            if (itemCount) {
+                itemCount.textContent = visibleCount;
+            }
+        });
+    }
+    
+    // Add Item Form Handler
+    const addItemForm = document.getElementById('addItemForm');
+    if (addItemForm) {
+        addItemForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData);
+            // Map t_quantity to t_item_quantity for API
+            if (data.t_quantity) {
+                data.t_item_quantity = data.t_quantity;
+            }
+            
+            // Show loading state
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
+            submitBtn.disabled = true;
+            
+            fetch('/inventory/add', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.error) {
+                    showToast('Error: ' + result.error, 'danger');
+                } else {
+                    showToast('Item added successfully!', 'success');
+                    // Close modal and refresh page
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('addItemModal'));
+                    modal.hide();
+                    setTimeout(() => location.reload(), 1000);
+                }
+            })
+            .catch(error => {
+                showToast('Error adding item: ' + error.message, 'danger');
+            })
+            .finally(() => {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            });
+        });
+    }
+    
+    // Edit Item Form Handler
+    const editItemForm = document.getElementById('editItemForm');
+    if (editItemForm) {
+        editItemForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData);
+            // Map t_quantity to t_item_quantity for API
+            if (data.t_quantity) {
+                data.t_item_quantity = data.t_quantity;
+            }
+            const itemId = data.t_item_id;
+            
+            // Show loading state
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
+            submitBtn.disabled = true;
+            
+            fetch(`/inventory/edit/${itemId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.error) {
+                    showToast('Error: ' + result.error, 'danger');
+                } else {
+                    showToast('Item updated successfully!', 'success');
+                    // Close modal and refresh page
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('editItemModal'));
+                    modal.hide();
+                    setTimeout(() => location.reload(), 1000);
+                }
+            })
+            .catch(error => {
+                showToast('Error updating item: ' + error.message, 'danger');
+            })
+            .finally(() => {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            });
+        });
+    }
+});
+
+            // Function to populate edit modal
+            function editItem(id, name, quantity, category) {
+                document.getElementById('editItemId').value = id;
+                document.getElementById('editItemName').value = name;
+                document.getElementById('editItemQuantity').value = quantity;
+                document.getElementById('editItemCategory').value = category || '';
+            }
+
+// Function to show toast notifications
+function showToast(message, type = 'info') {
+    // Create toast element
+    const toastHtml = `
+        <div class="toast align-items-center text-white bg-${type} border-0" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body">
+                    ${message}
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    `;
+    
+    // Add to toast container
+    const toastContainer = document.querySelector('.toast-container');
+    if (toastContainer) {
+        toastContainer.insertAdjacentHTML('beforeend', toastHtml);
+        
+        // Show the toast
+        const toastElement = toastContainer.lastElementChild;
+        const toast = new bootstrap.Toast(toastElement);
+        toast.show();
+        
+        // Remove from DOM after hiding
+        toastElement.addEventListener('hidden.bs.toast', function() {
+            this.remove();
+        });
+    }
+}
+</script>
+{% endblock %}

@@ -1,0 +1,305 @@
+{% extends "layout.html" %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='qr-scanner.css') }}">
+<style>
+  /* Login page background */
+  body {
+    background-image: url("/static/background.jpg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    min-height: 100vh;
+  }
+  
+  /* Ensure the main content area also has the background */
+  .main-content {
+    background-image: url("/static/background.jpg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    min-height: 100vh;
+  }
+  
+  /* Override any existing background */
+  .bg-light {
+    background: transparent !important;
+  }
+  
+  /* Login background wrapper */
+  .login-background-wrapper {
+    background-image: url("/static/background.jpg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    min-height: 100vh;
+    width: 100%;
+    position: relative;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Login Page Background Wrapper -->
+<div class="login-background-wrapper">
+<!-- QR Code Scanner Modal -->
+<div class="modal fade" id="qrScannerModal" tabindex="-1" aria-labelledby="qrScannerModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="qrScannerModalLabel">
+          <i class="fas fa-qrcode"></i> Scan QR Code
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body text-center">
+        <p class="text-muted mb-3">Position QR code within the frame</p>
+        <div id="qr-scanner-container" class="qr-scanner-container">
+          <div class="qr-scanner-loading">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+            <span>Initializing camera...</span>
+          </div>
+        </div>
+        <div class="qr-scanner-controls mt-3">
+          <button type="button" class="btn btn-outline-primary btn-sm" id="startScannerBtn" style="display: none;">
+            <i class="fas fa-play"></i> Start
+          </button>
+          <button type="button" class="btn btn-outline-danger btn-sm" id="stopScannerBtn" style="display: none;">
+            <i class="fas fa-stop"></i> Stop
+          </button>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="row justify-content-center">
+  <div class="col-md-6 col-lg-4">
+    <div class="card shadow-lg border-0">
+      <div class="card-header bg-primary text-white text-center">
+        <img src="{{ url_for('static', filename='ChatGPT Image Sep 3, 2025, 07_15_40 AM.png') }}" alt="TechInnovators Logo" class="mb-2" style="height: 40px; border-radius: 8px;">
+        <h4 class="mb-0">
+          <i class="bi bi-shield-lock"></i> Login Required
+        </h4>
+        <p class="mb-0 mt-2">TechInnovators Inventory System</p>
+      </div>
+      <div class="card-body p-4">
+        <form method="post" novalidate>
+          <div class="mb-3">
+            <label for="username" class="form-label fw-bold">
+              <i class="bi bi-person"></i> Username
+            </label>
+            <input type="text" 
+                   class="form-control form-control-lg" 
+                   id="username" 
+                   name="username" 
+                   placeholder="Enter username"
+                   required
+                   autofocus>
+          </div>
+          
+          <div class="mb-4">
+            <label for="password" class="form-label fw-bold">
+              <i class="bi bi-lock"></i> Password
+            </label>
+            <input type="password" 
+                   class="form-control form-control-lg" 
+                   id="password" 
+                   name="password" 
+                   placeholder="Enter password"
+                   required>
+          </div>
+          
+          <div class="d-grid gap-2">
+            <button type="submit" class="btn btn-primary btn-lg">
+              <i class="bi bi-box-arrow-in-right"></i> Sign In
+            </button>
+            <button type="button" class="btn btn-outline-primary" onclick="openQRScanner()">
+              <i class="bi bi-qr-code-scan"></i> Scan QR Code
+            </button>
+          </div>
+        </form>
+      </div>
+      <div class="card-footer bg-light text-center">
+        <small class="text-muted">
+          <i class="bi bi-info-circle"></i> 
+          Demo credentials: <strong>admin</strong> / <strong>password123</strong>
+        </small>
+    </div>
+    
+  </div>
+</div>
+
+<!-- Include jsQR library for QR code detection -->
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+<script src="{{ url_for('static', filename='qr-scanner.js') }}"></script>
+
+<script>
+// Auto-focus on username field
+document.addEventListener('DOMContentLoaded', function() {
+  document.getElementById('username').focus();
+});
+
+// Form validation
+document.querySelector('form').addEventListener('submit', function(e) {
+  const username = document.getElementById('username').value.trim();
+  const password = document.getElementById('password').value.trim();
+  
+  if (!username || !password) {
+    e.preventDefault();
+    if (!username) {
+      document.getElementById('username').classList.add('is-invalid');
+    }
+    if (!password) {
+      document.getElementById('password').classList.add('is-invalid');
+    }
+    showToast('Please fill in all fields.', 'warning');
+  }
+});
+
+// Remove validation classes on input
+document.getElementById('username').addEventListener('input', function() {
+  this.classList.remove('is-invalid');
+});
+
+document.getElementById('password').addEventListener('input', function() {
+  this.classList.remove('is-invalid');
+});
+
+// QR Code Scanner Functions
+async function openQRScanner() {
+  const modal = new bootstrap.Modal(document.getElementById('qrScannerModal'));
+  modal.show();
+  
+  // Initialize scanner when modal is shown
+  document.getElementById('qrScannerModal').addEventListener('shown.bs.modal', async function() {
+    await initializeQRScanner();
+  }, { once: true });
+  
+  // Clean up when modal is hidden
+  document.getElementById('qrScannerModal').addEventListener('hidden.bs.modal', function() {
+    if (window.qrScanner) {
+      window.qrScanner.stopScanning();
+    }
+  }, { once: true });
+}
+
+async function initializeQRScanner() {
+  const container = document.getElementById('qr-scanner-container');
+  const loadingDiv = container.querySelector('.qr-scanner-loading');
+  
+  try {
+    console.log('Initializing QR scanner...');
+    
+    // Initialize the scanner
+    const success = await window.qrScanner.init();
+    
+    if (success) {
+      console.log('Scanner initialized successfully');
+      
+      // Hide loading, show scanner
+      loadingDiv.style.display = 'none';
+      
+      // Start scanning
+      window.qrScanner.startScanning('qr-scanner-container', onQRScanSuccess, onQRScanError);
+      
+      // Show controls
+      document.getElementById('startScannerBtn').style.display = 'none';
+      document.getElementById('stopScannerBtn').style.display = 'inline-block';
+    } else {
+      throw new Error('Failed to initialize camera');
+    }
+  } catch (error) {
+    console.error('Scanner initialization error:', error);
+    loadingDiv.innerHTML = `
+      <div class="alert alert-danger">
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        Failed to access camera. Please check permissions and try again.
+        <br><small>Error: ${error.message}</small>
+      </div>
+    `;
+  }
+}
+
+function onQRScanSuccess(qrData) {
+  console.log('QR Code scanned successfully:', qrData);
+  
+  // Stop the scanner
+  window.qrScanner.stopScanning();
+  
+  // Perform login based on QR data
+  performQRLogin(qrData);
+}
+
+function onQRScanError(error) {
+  console.error('QR scan error:', error);
+  showToast(error, 'danger');
+}
+
+async function performQRLogin(qrData) {
+  try {
+    let loginData = {};
+    
+    if (qrData.type === 'employee') {
+      loginData = {
+        empid: qrData.employee_id,
+        username: qrData.username
+      };
+    } else if (qrData.type === 'admin') {
+      loginData = {
+        username: qrData.username
+      };
+    } else {
+      throw new Error('Invalid QR code type');
+    }
+    
+    const response = await fetch('/qr-login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(loginData)
+    });
+    
+    const result = await response.json();
+    
+    if (result.status === 'success') {
+      showToast(result.message, 'success');
+      
+      // Close the modal
+      const modal = bootstrap.Modal.getInstance(document.getElementById('qrScannerModal'));
+      modal.hide();
+      
+      // Redirect after a short delay
+      setTimeout(() => {
+        window.location.href = result.redirect;
+      }, 1000);
+    } else {
+      showToast(result.message || 'Login failed', 'danger');
+    }
+  } catch (error) {
+    console.error('QR login error:', error);
+    showToast('Network error during login', 'danger');
+  }
+}
+
+// Control button handlers
+document.getElementById('startScannerBtn').addEventListener('click', initializeQRScanner);
+document.getElementById('stopScannerBtn').addEventListener('click', function() {
+  window.qrScanner.stopScanning();
+  this.style.display = 'none';
+  document.getElementById('startScannerBtn').style.display = 'inline-block';
+});
+
+// Make functions globally available
+window.openQRScanner = openQRScanner;
+</script>
+</div> <!-- End login-background-wrapper -->
+{% endblock %}

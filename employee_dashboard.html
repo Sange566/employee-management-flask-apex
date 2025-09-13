@@ -1,0 +1,390 @@
+{% extends "layout.html" %}
+
+{% block title %}Employee Dashboard - TechInnovators{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h3 mb-0">
+                        <i class="fas fa-tachometer-alt text-primary me-2"></i>
+                        My Dashboard
+                    </h1>
+                    <p class="text-muted mb-0">Welcome back! Here's your equipment overview.</p>
+                </div>
+                <div class="text-end">
+                    <span class="badge bg-success fs-6">
+                        <i class="fas fa-user me-1"></i>
+                        Employee ID: {{ employee_id }}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="card-title">{{ stats.total_bookings }}</h4>
+                            <p class="card-text">Total Bookings</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-list fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="card-title">{{ stats.current_out }}</h4>
+                            <p class="card-text">Currently Out</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-clock fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-danger text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="card-title">{{ stats.overdue_count }}</h4>
+                            <p class="card-text">Overdue Items</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-exclamation-triangle fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-bolt text-warning me-2"></i>
+                        Quick Actions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 mb-3">
+                            <a href="{{ url_for('employee_inventory') }}" class="btn btn-outline-primary w-100">
+                                <i class="fas fa-search me-2"></i>
+                                Browse Equipment
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <a href="{{ url_for('employee_bookings') }}" class="btn btn-outline-info w-100">
+                                <i class="fas fa-history me-2"></i>
+                                My Bookings
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <button class="btn btn-outline-success w-100" onclick="showReturnModal()">
+                                <i class="fas fa-undo me-2"></i>
+                                Return Equipment
+                            </button>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <button class="btn btn-outline-warning w-100" onclick="showRequestModal()">
+                                <i class="fas fa-plus me-2"></i>
+                                Request Equipment
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Current Equipment -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-laptop text-info me-2"></i>
+                        My Current Equipment
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if bookings %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Item</th>
+                                        <th>Booking Date</th>
+                                        <th>Return Date</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for booking in bookings %}
+                                    <tr class="{% if booking.t_return_date == 'Not Returned' and booking.t_booking_date|string|length > 0 %}{% set booking_date = booking.t_booking_date|string %}{% set days_diff = (today|string|replace('-', '')|int - booking_date|replace('-', '')|int) %}{% if days_diff > 7 %}table-danger{% endif %}{% endif %}">
+                                        <td>
+                                            <strong>{{ booking.t_item_name or 'Unknown Item' }}</strong>
+                                            <br>
+                                            <small class="text-muted">ID: {{ booking.t_inventory_id }}</small>
+                                        </td>
+                                        <td>{{ booking.t_booking_date or 'N/A' }}</td>
+                                        <td>
+                                            {% if booking.t_return_date == 'Not Returned' %}
+                                                <span class="text-warning">Not Returned</span>
+                                            {% else %}
+                                                {{ booking.t_return_date }}
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if booking.t_return_date == 'Not Returned' %}
+                                                {% set booking_date = booking.t_booking_date|string %}
+                                                {% set days_diff = (today|string|replace('-', '')|int - booking_date|replace('-', '')|int) %}
+                                                {% if days_diff > 7 %}
+                                                    <span class="badge bg-danger">
+                                                        <i class="fas fa-exclamation-triangle me-1"></i>
+                                                        OVERDUE
+                                                    </span>
+                                                {% else %}
+                                                    <span class="badge bg-warning">
+                                                        <i class="fas fa-clock me-1"></i>
+                                                        OUT
+                                                    </span>
+                                                {% endif %}
+                                            {% else %}
+                                                <span class="badge bg-success">
+                                                    <i class="fas fa-check me-1"></i>
+                                                    RETURNED
+                                                </span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if booking.t_return_date == 'Not Returned' %}
+                                                <button class="btn btn-sm btn-success" 
+                                                        onclick="returnEquipment({{ booking.t_booking_id }})">
+                                                    <i class="fas fa-undo me-1"></i>
+                                                    Return
+                                                </button>
+                                            {% else %}
+                                                <span class="text-muted">Returned</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">No Equipment Currently Out</h5>
+                            <p class="text-muted">You don't have any equipment checked out at the moment.</p>
+                            <a href="{{ url_for('employee_inventory') }}" class="btn btn-primary">
+                                <i class="fas fa-search me-2"></i>
+                                Browse Available Equipment
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Return Equipment Modal -->
+<div class="modal fade" id="returnModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Return Equipment</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Select the equipment you want to return:</p>
+                <div id="returnEquipmentList">
+                    <!-- Equipment list will be populated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Request Equipment Modal -->
+<div class="modal fade" id="requestModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Request Equipment</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="requestForm">
+                    <div class="mb-3">
+                        <label for="equipmentSelect" class="form-label">Equipment</label>
+                        <select class="form-select" id="equipmentSelect" name="inventory_id" required>
+                            <option value="">Select equipment...</option>
+                            <!-- Options will be populated via AJAX -->
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="startDate" class="form-label">Start Date</label>
+                        <input type="date" class="form-control" id="startDate" name="start_date" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="endDate" class="form-label">End Date</label>
+                        <input type="date" class="form-control" id="endDate" name="end_date" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="purpose" class="form-label">Purpose/Notes</label>
+                        <textarea class="form-control" id="purpose" name="purpose" rows="3" placeholder="Describe what you'll use this equipment for..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="submitRequest()">Submit Request</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function showReturnModal() {
+    // Populate return modal with current equipment
+    const returnList = document.getElementById('returnEquipmentList');
+    returnList.innerHTML = '';
+    
+    {% for booking in bookings %}
+        {% if booking.t_return_date == 'Not Returned' %}
+        const item = document.createElement('div');
+        item.className = 'form-check mb-2';
+        item.innerHTML = `
+            <input class="form-check-input" type="radio" name="returnItem" value="{{ booking.t_booking_id }}" id="return{{ booking.t_booking_id }}">
+            <label class="form-check-label" for="return{{ booking.t_booking_id }}">
+                <strong>{{ booking.t_item_name }}</strong> (Booked: {{ booking.t_booking_date }})
+            </label>
+        `;
+        returnList.appendChild(item);
+        {% endif %}
+    {% endfor %}
+    
+    if (returnList.children.length === 0) {
+        returnList.innerHTML = '<p class="text-muted">No equipment to return.</p>';
+    }
+    
+    new bootstrap.Modal(document.getElementById('returnModal')).show();
+}
+
+function showRequestModal() {
+    // Load available equipment
+    fetch('/employee/inventory')
+        .then(response => response.text())
+        .then(html => {
+            // Parse the HTML to extract equipment options
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            const equipmentSelect = document.getElementById('equipmentSelect');
+            equipmentSelect.innerHTML = '<option value="">Select equipment...</option>';
+            
+            // This is a simplified approach - in a real app, you'd have a JSON API
+            equipmentSelect.innerHTML += '<option value="1">Raspberry Pi 4 Model B</option>';
+            equipmentSelect.innerHTML += '<option value="2">Arduino Uno R3</option>';
+            equipmentSelect.innerHTML += '<option value="3">ESP32 Development Board</option>';
+        });
+    
+    new bootstrap.Modal(document.getElementById('requestModal')).show();
+}
+
+function returnEquipment(bookingId) {
+    if (confirm('Are you sure you want to return this equipment?')) {
+        fetch(`/employee/bookings/${bookingId}/return`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                showToast('Equipment returned successfully!', 'success');
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                showToast(data.error || 'Failed to return equipment', 'danger');
+            }
+        })
+        .catch(error => {
+            showToast('Error returning equipment', 'danger');
+        });
+    }
+}
+
+function submitRequest() {
+    const form = document.getElementById('requestForm');
+    const formData = new FormData(form);
+    
+    fetch('/employee/bookings/request', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            showToast('Equipment request submitted successfully!', 'success');
+            bootstrap.Modal.getInstance(document.getElementById('requestModal')).hide();
+            form.reset();
+        } else {
+            showToast(data.error || 'Failed to submit request', 'danger');
+        }
+    })
+    .catch(error => {
+        showToast('Error submitting request', 'danger');
+    });
+}
+
+function showToast(message, type) {
+    const toastContainer = document.getElementById('toast-container');
+    const toastId = 'toast-' + Date.now();
+    
+    const toastHTML = `
+        <div class="toast" id="${toastId}" role="alert">
+            <div class="toast-header">
+                <i class="fas fa-${type === 'success' ? 'check-circle text-success' : 'exclamation-triangle text-danger'} me-2"></i>
+                <strong class="me-auto">${type === 'success' ? 'Success' : 'Error'}</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body">${message}</div>
+        </div>
+    `;
+    
+    toastContainer.insertAdjacentHTML('beforeend', toastHTML);
+    const toast = new bootstrap.Toast(document.getElementById(toastId));
+    toast.show();
+    
+    // Remove toast element after it's hidden
+    document.getElementById(toastId).addEventListener('hidden.bs.toast', function() {
+        this.remove();
+    });
+}
+</script>
+{% endblock %}

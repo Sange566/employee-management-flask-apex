@@ -1,0 +1,135 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<div class="row">
+  <div class="col-12">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div>
+        <h2 class="mb-1">
+          <i class="fas fa-chart-bar text-success"></i> Usage Report
+        </h2>
+        <p class="text-muted mb-0">View equipment usage and booking history</p>
+      </div>
+    </div>
+
+    <!-- Filter Form -->
+    <div class="card shadow-sm mb-4">
+      <div class="card-header bg-light">
+        <h5 class="card-title mb-0">
+          <i class="fas fa-filter"></i> Filters
+        </h5>
+      </div>
+      <div class="card-body">
+        <form method="get" class="row g-3">
+          <div class="col-md-3">
+            <label for="empid" class="form-label">Employee ID</label>
+            <input type="number" 
+                   class="form-control" 
+                   id="empid" 
+                   name="empid" 
+                   value="{{ filters.empid }}"
+                   placeholder="e.g. 1">
+          </div>
+          <div class="col-md-3">
+            <label for="t_item_id" class="form-label">Item ID</label>
+            <input type="number" 
+                   class="form-control" 
+                   id="t_item_id" 
+                   name="t_item_id" 
+                   value="{{ filters.t_item_id }}"
+                   placeholder="e.g. 1">
+          </div>
+          <div class="col-md-3">
+            <label for="start_date" class="form-label">Start Date</label>
+            <input type="date" 
+                   class="form-control" 
+                   id="start_date" 
+                   name="start_date" 
+                   value="{{ filters.start_date }}">
+          </div>
+          <div class="col-md-3">
+            <label for="end_date" class="form-label">End Date</label>
+            <input type="date" 
+                   class="form-control" 
+                   id="end_date" 
+                   name="end_date" 
+                   value="{{ filters.end_date }}">
+          </div>
+          <div class="col-12">
+            <button type="submit" class="btn btn-primary">
+              <i class="fas fa-search"></i> Apply Filters
+            </button>
+            <a href="{{ url_for('usage') }}" class="btn btn-outline-secondary ms-2">
+              <i class="fas fa-times"></i> Clear Filters
+            </a>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Usage Report Table -->
+    <div class="card shadow-sm">
+      <div class="card-body">
+        {% if usage %}
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead class="table-light">
+                <tr>
+                  <th scope="col">Booking ID</th>
+                  <th scope="col">Employee ID</th>
+                  <th scope="col">Item ID</th>
+                  <th scope="col">Item Name</th>
+                  <th scope="col">Booking Date</th>
+                  <th scope="col">Return Date</th>
+                  <th scope="col" class="text-center">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for record in usage %}
+                  <tr>
+                    <td class="fw-bold">{{ record.t_booking_id }}</td>
+                    <td>{{ record.t_employee_id }}</td>
+                    <td>{{ record.t_item_id }}</td>
+                    <td>{{ record.t_item_name }}</td>
+                    <td>
+                      <span class="badge bg-info text-dark">
+                        {{ record.t_booking_date }}
+                      </span>
+                    </td>
+                    <td>
+                      {% if record.t_return_date == 'Not Returned' %}
+                        <span class="badge bg-warning text-dark">Not Returned</span>
+                      {% else %}
+                        <span class="badge bg-success text-white">
+                          {{ record.t_return_date }}
+                        </span>
+                      {% endif %}
+                    </td>
+                    <td class="text-center">
+                      {% if record.status == 'Active' %}
+                        <span class="badge bg-warning text-dark">Active</span>
+                      {% elif record.status == 'Returned' %}
+                        <span class="badge bg-success">Returned</span>
+                      {% else %}
+                        <span class="badge bg-secondary">{{ record.status }}</span>
+                      {% endif %}
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <div class="text-center py-5">
+            <i class="fas fa-chart-bar display-1 text-muted mb-3"></i>
+            <h4 class="text-muted">No Usage Data Found</h4>
+            <p class="text-muted">Try adjusting your filters or check back later.</p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

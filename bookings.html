@@ -1,0 +1,426 @@
+{% extends "layout.html" %}
+
+{% block title %}Bookings Management{% endblock %}
+
+{% block content %}
+<!-- Toast Container -->
+<div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1055;">
+</div>
+
+<div class="container-fluid">
+<div class="row">
+        <div class="col-12">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3 mb-0">
+                    <i class="fas fa-calendar-check text-primary"></i>
+                    Bookings Management
+                </h1>
+                <div class="text-muted">
+                    <small>
+                        {% if MOCK_MODE %}
+                            <span class="badge bg-warning text-dark">Mock Mode</span>
+                        {% else %}
+                            <span class="badge bg-success">Live Data</span>
+                        {% endif %}
+                    </small>
+      </div>
+    </div>
+
+            <!-- Filters Card -->
+            <div class="card mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-filter"></i> Filters
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="GET" action="{{ url_for('bookings_management') }}" class="row g-3">
+                        <div class="col-md-3">
+                            <label for="empid" class="form-label">Employee</label>
+                            <select class="form-select" id="empid" name="empid">
+                                <option value="all" {% if not filters.empid or filters.empid == 'all' %}selected{% endif %}>All Employees</option>
+                                {% for employee in employees %}
+                                    <option value="{{ employee.t_empid or employee.empid }}" 
+                                            {% if filters.empid == (employee.t_empid or employee.empid)|string %}selected{% endif %}>
+                                        {{ employee.t_emp_fname or employee.fname }} {{ employee.t_emp_lname or employee.lname }} 
+                                        (ID: {{ employee.t_empid or employee.empid }})
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="start_date" class="form-label">Start Date</label>
+                            <input type="date" class="form-control" id="start_date" name="start_date" 
+                                   value="{{ filters.start_date or '' }}">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="end_date" class="form-label">End Date</label>
+                            <input type="date" class="form-control" id="end_date" name="end_date" 
+                                   value="{{ filters.end_date or '' }}">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="status" class="form-label">Status</label>
+                            <select class="form-select" id="status" name="status">
+                                <option value="all" {% if filters.status == 'all' or not filters.status %}selected{% endif %}>All</option>
+                                <option value="out" {% if filters.status == 'out' %}selected{% endif %}>Currently Out</option>
+                                <option value="returned" {% if filters.status == 'returned' %}selected{% endif %}>Returned</option>
+                                <option value="overdue" {% if filters.status == 'overdue' %}selected{% endif %}>Overdue</option>
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-search"></i> Apply Filters
+                            </button>
+                            <a href="{{ url_for('bookings_management') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times"></i> Clear Filters
+                            </a>
+                        </div>
+                    </form>
+                </div>
+      </div>
+
+    <!-- Bookings Table -->
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-list"></i> Bookings List
+                        <span class="badge bg-light text-dark ms-2">{{ bookings|length }} items</span>
+            </h5>
+        </div>
+        <div class="card-body p-0">
+                    {% if bookings %}
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead class="table-light">
+                <tr>
+                                        <th scope="col">Booking ID</th>
+                                        <th scope="col">Employee</th>
+                  <th scope="col">Item Name</th>
+                  <th scope="col">Booking Date</th>
+                  <th scope="col">Return Date</th>
+                                        <th scope="col">Status</th>
+                                        <th scope="col" class="text-center">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                                    {% for booking in bookings %}
+                                        {% set is_overdue = booking.t_return_date == 'Not Returned' and booking.t_booking_date < today %}
+                                        <tr class="{% if is_overdue %}table-danger{% endif %}" data-booking-id="{{ booking.t_booking_id or booking.booking_id }}">
+                                            <td class="fw-bold">{{ booking.t_booking_id or booking.booking_id or 'N/A' }}</td>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <div>
+                                                        <strong>{{ booking.employee_name or 'Unknown Employee' }}</strong>
+                                                        <br>
+                                                        <small class="text-muted">ID: {{ booking.t_employee_id or booking.employee_id or 'N/A' }}</small>
+                                                    </div>
+                                                </div>
+                    </td>
+                                            <td>{{ booking.t_item_name or booking.item_name or 'N/A' }}</td>
+                                            <td>{{ booking.t_booking_date or booking.booking_date or 'N/A' }}</td>
+                                            <td>{{ booking.t_return_date or booking.return_date or 'N/A' }}</td>
+                                            <td>
+                                                {% set return_status = booking.t_return_date or booking.return_date %}
+                                                {% if return_status == 'Not Returned' %}
+                                                    {% if is_overdue %}
+                                                        <span class="badge bg-danger">
+                                                            <i class="fas fa-exclamation-triangle"></i> OVERDUE
+                      </span>
+                      {% else %}
+                                                        <span class="badge bg-warning text-dark">
+                                                            <i class="fas fa-clock"></i> OUT
+                                                        </span>
+                      {% endif %}
+                      {% else %}
+                                                    <span class="badge bg-success">
+                                                        <i class="fas fa-check-circle"></i> RETURNED
+                                                    </span>
+                      {% endif %}
+                    </td>
+                                            <td class="text-center">
+                                                {% if return_status == 'Not Returned' %}
+                                                    <button type="button" class="btn btn-sm btn-success return-btn" 
+                                                            data-booking-id="{{ booking.t_booking_id or booking.booking_id }}"
+                                                            data-employee-id="{{ booking.t_employee_id or booking.employee_id }}"
+                                                            data-item-name="{{ booking.t_item_name or booking.item_name }}"
+                                                            title="Mark as Returned">
+                                                        <i class="fas fa-undo"></i> Return Now
+                              </button>
+                            {% else %}
+                                                    <span class="text-muted">
+                                                        <i class="fas fa-check text-success"></i> Returned
+                                                    </span>
+                            {% endif %}
+                        </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <div class="mb-3">
+                                <i class="fas fa-calendar-times fa-3x text-muted"></i>
+                            </div>
+                            <h5 class="text-muted">No Bookings Found</h5>
+                            <p class="text-muted">
+                                {% if filters.empid or filters.start_date or filters.end_date or filters.status %}
+                                    No bookings match your current filters. Try adjusting your search criteria.
+                                {% else %}
+                                    There are no bookings in the system yet.
+                                {% endif %}
+                            </p>
+                            {% if filters.empid or filters.start_date or filters.end_date or filters.status %}
+                                <a href="{{ url_for('bookings_management') }}" class="btn btn-outline-primary">
+                                    <i class="fas fa-times"></i> Clear Filters
+                                </a>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Summary Stats -->
+            {% if bookings %}
+                <div class="row mt-4">
+                    <div class="col-md-3">
+                        <div class="card bg-primary text-white">
+                            <div class="card-body text-center">
+                                <h5 class="card-title">{{ bookings|length }}</h5>
+                                <p class="card-text">Total Bookings</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-warning text-dark">
+                            <div class="card-body text-center">
+                                <h5 class="card-title">
+                                    {{ bookings|selectattr('t_return_date', 'equalto', 'Not Returned')|list|length }}
+                                </h5>
+                                <p class="card-text">Currently Out</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-success text-white">
+                            <div class="card-body text-center">
+                                <h5 class="card-title">
+                                    {{ bookings|rejectattr('t_return_date', 'equalto', 'Not Returned')|list|length }}
+                                </h5>
+                                <p class="card-text">Returned</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-danger text-white">
+                            <div class="card-body text-center">
+                                <h5 class="card-title">
+                                    {{ bookings|selectattr('t_return_date', 'equalto', 'Not Returned')|selectattr('t_booking_date', 'lt', today)|list|length }}
+                                </h5>
+                                <p class="card-text">Overdue</p>
+        </div>
+      </div>
+        </div>
+      </div>
+    {% endif %}
+        </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle return button clicks
+    const returnButtons = document.querySelectorAll('.return-btn');
+    returnButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const bookingId = this.dataset.bookingId;
+            const employeeId = this.dataset.employeeId;
+            const itemName = this.dataset.itemName;
+            
+            // Show confirmation dialog
+            if (confirm(`Are you sure you want to mark "${itemName}" as returned for Employee ID ${employeeId}?`)) {
+                // Show loading state
+                const originalText = this.innerHTML;
+                this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+                this.disabled = true;
+                
+                // Make AJAX request to return the booking
+                fetch(`/bookings/return/${bookingId}/${employeeId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Show success message
+                        showToast(data.type, data.message);
+                        
+                        // Update dashboard if data is provided
+                        if (data.dashboard_data) {
+                            updateDashboard(data.dashboard_data);
+                            
+                            // Notify other tabs/pages about the update
+                            localStorage.setItem('dashboard_update', Date.now().toString());
+                        }
+                        
+                        // Update the specific row in the table
+                        updateBookingRow(bookingId, 'returned');
+                        
+                        // Reload page after a short delay to show updated data
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 2000);
+                    } else {
+                        throw new Error(data.message || 'Failed to return booking');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('danger', 'Failed to return booking. Please try again.');
+                    // Restore button state
+                    this.innerHTML = originalText;
+                    this.disabled = false;
+                });
+            }
+        });
+    });
+    
+    // Auto-submit form on filter change (optional enhancement)
+    const filterInputs = document.querySelectorAll('#empid, #start_date, #end_date, #status');
+    let filterTimeout;
+    
+    filterInputs.forEach(input => {
+        input.addEventListener('change', function() {
+            clearTimeout(filterTimeout);
+            filterTimeout = setTimeout(() => {
+                // Auto-submit after 1 second of no changes
+                // this.form.submit();
+            }, 1000);
+        });
+    });
+    
+    // Update dashboard with new data
+    function updateDashboard(dashboardData) {
+        // Update KPI cards
+        const kpiCards = document.querySelectorAll('.counter');
+        kpiCards.forEach(card => {
+            const target = card.getAttribute('data-target');
+            if (target === 'total_items') {
+                card.textContent = dashboardData.total_items;
+            } else if (target === 'currently_issued') {
+                card.textContent = dashboardData.currently_issued;
+            } else if (target === 'total_employees') {
+                card.textContent = dashboardData.total_employees;
+            } else if (target === 'recent_bookings') {
+                card.textContent = dashboardData.recent_bookings;
+            }
+        });
+        
+        // Update recent activity section
+        updateRecentActivity(dashboardData.recent_activity);
+    }
+    
+    // Update recent activity section
+    function updateRecentActivity(activities) {
+        const activityContainer = document.querySelector('.recent-activity-list');
+        if (!activityContainer || !activities) return;
+        
+        // Clear existing activities
+        activityContainer.innerHTML = '';
+        
+        // Add new activities
+        activities.forEach(activity => {
+            const activityItem = document.createElement('div');
+            activityItem.className = 'd-flex align-items-center mb-3';
+            
+            const icon = activity.type === 'return' ? 'fa-undo text-success' : 'fa-calendar-plus text-primary';
+            const action = activity.type === 'return' ? 'Returned' : 'Booked';
+            
+            activityItem.innerHTML = `
+                <div class="activity-icon me-3">
+                    <i class="fas ${icon}"></i>
+                </div>
+                <div class="flex-grow-1">
+                    <div class="fw-medium">${action}: ${activity.item_name}</div>
+                    <small class="text-muted">Employee ID: ${activity.employee_id} • ${activity.date}</small>
+                </div>
+            `;
+            
+            activityContainer.appendChild(activityItem);
+        });
+    }
+    
+    // Update specific booking row
+    function updateBookingRow(bookingId, status) {
+        const row = document.querySelector(`tr[data-booking-id="${bookingId}"]`);
+        if (!row) return;
+        
+        if (status === 'returned') {
+            // Update return date
+            const returnDateCell = row.querySelector('td:nth-child(5)');
+            if (returnDateCell) {
+                returnDateCell.textContent = new Date().toISOString().split('T')[0];
+            }
+            
+            // Update status badge
+            const statusCell = row.querySelector('td:nth-child(6)');
+            if (statusCell) {
+                statusCell.innerHTML = '<span class="badge bg-success"><i class="fas fa-check-circle"></i> RETURNED</span>';
+            }
+            
+            // Update action button
+            const actionCell = row.querySelector('td:nth-child(7)');
+            if (actionCell) {
+                actionCell.innerHTML = '<span class="text-muted"><i class="fas fa-check text-success"></i> Returned</span>';
+            }
+            
+            // Remove overdue styling if present
+            row.classList.remove('table-danger');
+        }
+    }
+    
+    // Toast notification function
+    function showToast(type, message) {
+        const toastContainer = document.querySelector('.toast-container');
+        if (!toastContainer) return;
+        
+        const toast = document.createElement('div');
+        toast.className = `toast show`;
+        toast.setAttribute('role', 'alert');
+        toast.setAttribute('aria-live', 'assertive');
+        toast.setAttribute('aria-atomic', 'true');
+        
+        const iconMap = {
+            'success': '✅',
+            'danger': '❌',
+            'warning': '⚠️',
+            'info': 'ℹ️'
+        };
+        
+        toast.innerHTML = `
+            <div class="toast-header bg-${type} text-white">
+                <strong class="me-auto">${iconMap[type] || 'ℹ️'} ${type.charAt(0).toUpperCase() + type.slice(1)}</strong>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body">
+                ${message}
+            </div>
+        `;
+        
+        toastContainer.appendChild(toast);
+        
+        // Auto-remove after 5 seconds
+      setTimeout(() => {
+            if (toast.parentNode) {
+                toast.parentNode.removeChild(toast);
+            }
+        }, 5000);
+    }
+});
+</script>
+{% endblock %}

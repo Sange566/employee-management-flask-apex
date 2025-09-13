@@ -1,0 +1,85 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<div class="row">
+  <div class="col-lg-8 offset-lg-2">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div>
+        <h2 class="mb-1">
+          <i class="fas fa-plus-circle text-info"></i> Add Inventory Item
+        </h2>
+        <p class="text-muted mb-0">Create a new inventory item</p>
+      </div>
+      <div>
+        <a href="{{ url_for('inventory') }}" class="btn btn-outline-secondary">
+          <i class="fas fa-arrow-left"></i> Back to Inventory
+        </a>
+      </div>
+    </div>
+
+    <!-- Add Inventory Form -->
+    <div class="card shadow-sm">
+      <div class="card-header bg-info text-white">
+        <h5 class="card-title mb-0">
+          <i class="fas fa-plus-circle"></i> Item Information
+        </h5>
+      </div>
+      <div class="card-body">
+        <form method="post" novalidate>
+          <div class="row g-3">
+            <div class="col-12">
+              <label for="t_item_name" class="form-label fw-bold">
+                Item Name <span class="text-danger">*</span>
+              </label>
+              <input type="text" 
+                     class="form-control" 
+                     id="t_item_name" 
+                     name="t_item_name" 
+                     placeholder="Enter item name"
+                     required>
+            </div>
+            <div class="col-md-6">
+              <label for="t_item_category" class="form-label fw-bold">
+                Category <span class="text-danger">*</span>
+              </label>
+              <select class="form-select" id="t_item_category" name="t_item_category" required>
+                <option value="">Select Category</option>
+                <option value="Electronics">Electronics</option>
+                <option value="Tools">Tools</option>
+                <option value="Furniture">Furniture</option>
+                <option value="Office Supplies">Office Supplies</option>
+                <option value="Software">Software</option>
+                <option value="Hardware">Hardware</option>
+                <option value="Accessories">Accessories</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label for="t_quantity" class="form-label fw-bold">
+                Quantity <span class="text-danger">*</span>
+              </label>
+              <input type="number" 
+                     class="form-control" 
+                     id="t_quantity" 
+                     name="t_quantity" 
+                     min="0"
+                     placeholder="Enter quantity"
+                     required>
+            </div>
+          </div>
+          
+          <div class="mt-4">
+            <button type="submit" class="btn btn-info px-4">
+              <i class="fas fa-save"></i> Create Item
+            </button>
+            <a href="{{ url_for('inventory') }}" class="btn btn-outline-secondary ms-2">
+              <i class="fas fa-times"></i> Cancel
+            </a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

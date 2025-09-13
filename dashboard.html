@@ -1,0 +1,435 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="row">
+  <div class="col-lg-10 offset-lg-1">
+    <!-- Dashboard Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div>
+        <h3 class="mb-1">
+          <i class="bi bi-person-badge"></i> Employee Dashboard - {{ empid }}
+        </h3>
+        <p class="text-muted mb-0">Manage equipment bookings and view history</p>
+      </div>
+      <div class="d-flex gap-2">
+        <button class="btn btn-outline-primary" onclick="refreshDashboard()">
+          <i class="bi bi-arrow-clockwise"></i> Refresh
+        </button>
+        <a class="btn btn-secondary" href="{{ url_for('index') }}">
+          <i class="bi bi-house"></i> Home
+        </a>
+      </div>
+    </div>
+
+    <!-- Error Display -->
+    {% if error %}
+      <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle"></i>
+        <strong>Error:</strong> {{ error }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    {% endif %}
+
+    <!-- Dashboard Stats Cards -->
+    <div class="row mb-4">
+      <div class="col-md-3">
+        <div class="card bg-primary text-white">
+          <div class="card-body text-center">
+            <i class="bi bi-list-ul display-4"></i>
+            <h4 class="mt-2">{{ count }}</h4>
+            <p class="mb-0">Total Bookings</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card bg-warning text-dark">
+          <div class="card-body text-center">
+            <i class="bi bi-clock display-4"></i>
+            <h4 class="mt-2">{{ active_count }}</h4>
+            <p class="mb-0">Active (Out)</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card bg-success text-white">
+          <div class="card-body text-center">
+            <i class="bi bi-check-circle display-4"></i>
+            <h4 class="mt-2">{{ returned_count }}</h4>
+            <p class="mb-0">Returned</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card bg-info text-white">
+          <div class="card-body text-center">
+            <i class="bi bi-calendar display-4"></i>
+            <h4 class="mt-2">{{ latest_booking_date }}</h4>
+            <p class="mb-0">Latest Booking</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dashboard Tabs -->
+    <div class="card shadow-sm">
+      <div class="card-header">
+        <ul class="nav nav-tabs card-header-tabs" id="dashboardTabs" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="current-tab" data-bs-toggle="tab" data-bs-target="#current" type="button" role="tab" aria-controls="current" aria-selected="true">
+              <i class="bi bi-clock"></i> Current Bookings ({{ active_count }})
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="history-tab" data-bs-toggle="tab" data-bs-target="#history" type="button" role="tab" aria-controls="history" aria-selected="false">
+              <i class="bi bi-clock-history"></i> History ({{ returned_count }})
+            </button>
+          </li>
+        </ul>
+      </div>
+      <div class="card-body">
+        <div class="tab-content" id="dashboardTabsContent">
+          <!-- Current Bookings Tab -->
+          <div class="tab-pane fade show active" id="current" role="tabpanel" aria-labelledby="current-tab">
+            {% if current_bookings %}
+              <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                  <thead class="table-light">
+                    <tr>
+                      <th scope="col">#</th>
+                      <th scope="col">Item ID</th>
+                      <th scope="col">Item Name</th>
+                      <th scope="col">Booking Date</th>
+                      <th scope="col">Days Out</th>
+                      <th scope="col" class="text-center">Status</th>
+                      <th scope="col" class="text-center">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for b in current_bookings %}
+                      <tr class="table-warning">
+                        <td class="fw-bold">{{ b.t_booking_id }}</td>
+                        <td>{{ b.t_inventory_id }}</td>
+                        <td>
+                          {% if b.get('t_item_name') %}
+                            <span class="fw-medium">{{ b.t_item_name }}</span>
+                          {% else %}
+                            <span class="text-muted">N/A</span>
+                          {% endif %}
+                        </td>
+                        <td>
+                          <span class="badge bg-info text-dark">
+                            {{ b.t_booking_date }}
+                          </span>
+                        </td>
+                        <td>
+                          <span class="badge bg-warning text-dark">
+                            {{ b.days_out }} days
+                          </span>
+                        </td>
+                        <td class="text-center">
+                          <span class="badge bg-warning text-dark">Active</span>
+                        </td>
+                                                                         <td class="text-center">
+                          <div class="d-flex gap-1 justify-content-center">
+                            <a href="{{ url_for('generate_qrcode', booking_id=b.t_booking_id) }}" 
+                               class="btn btn-sm btn-outline-info" 
+                               title="View QR Code"
+                               target="_blank">
+                              <i class="bi bi-qr-code"></i>
+                            </a>
+                            <button class="btn btn-sm btn-outline-warning" 
+                                    onclick="openQRReturnScanner('{{ b.t_booking_id }}', '{{ b.t_employee_id }}')"
+                                    title="Scan Employee QR Code for Return">
+                              <i class="bi bi-qr-code-scan"></i>
+                            </button>
+                            <button class="btn btn-sm btn-success" 
+                                    onclick="confirmReturn('{{ b.t_booking_id }}', '{{ b.t_employee_id }}')"
+                                    title="Return without QR verification">
+                              <i class="bi bi-arrow-return-left"></i> Return
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            {% else %}
+              <div class="text-center py-5">
+                <i class="bi bi-check-circle display-1 text-success"></i>
+                <h4 class="mt-3 text-success">All Caught Up!</h4>
+                <p class="text-muted">No active equipment bookings at the moment.</p>
+              </div>
+            {% endif %}
+          </div>
+
+          <!-- History Tab -->
+          <div class="tab-pane fade" id="history" role="tabpanel" aria-labelledby="history-tab">
+            {% if returned_bookings %}
+              <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                  <thead class="table-light">
+                    <tr>
+                      <th scope="col">#</th>
+                      <th scope="col">Item ID</th>
+                      <th scope="col">Item Name</th>
+                      <th scope="col">Booking Date</th>
+                      <th scope="col">Return Date</th>
+                      <th scope="col">Duration</th>
+                      <th scope="col" class="text-center">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for b in returned_bookings %}
+                      <tr>
+                        <td class="fw-bold">{{ b.t_booking_id }}</td>
+                        <td>{{ b.t_inventory_id }}</td>
+                        <td>
+                          {% if b.get('t_item_name') %}
+                            <span class="fw-medium">{{ b.t_item_name }}</span>
+                          {% else %}
+                            <span class="text-muted">N/A</span>
+                          {% endif %}
+                        </td>
+                        <td>
+                          <span class="badge bg-info text-dark">
+                            {{ b.t_booking_date }}
+                          </span>
+                        </td>
+                        <td>
+                          <span class="badge bg-success text-white">
+                            {{ b.t_return_date }}
+                          </span>
+                        </td>
+                        <td>
+                          <span class="badge bg-secondary text-white">
+                            {{ b.duration }} days
+                          </span>
+                        </td>
+                        <td class="text-center">
+                          <span class="badge bg-success text-white">Returned</span>
+                        </td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            {% else %}
+              <div class="text-center py-5">
+                <i class="bi bi-inbox display-1 text-muted"></i>
+                <h4 class="mt-3 text-muted">No History Yet</h4>
+                <p class="text-muted">No returned equipment bookings found.</p>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hidden Form for Return Action -->
+    <form id="returnForm" method="post" action="{{ url_for('do_return') }}" style="display: none;">
+      <input type="hidden" name="bookid" id="returnBookId">
+      <input type="hidden" name="empid" id="returnEmpId">
+      <input type="hidden" name="returndate" value="">
+    </form>
+  </div>
+</div>
+
+<script>
+// Store current employee ID for refresh functionality
+const currentEmployeeId = {{ empid }};
+
+function refreshDashboard() {
+  showSpinner();
+  setTimeout(() => {
+    window.location.reload();
+  }, 300);
+}
+
+function confirmReturn(bookId, empId) {
+  document.getElementById('returnBookId').value = bookId;
+  document.getElementById('returnEmpId').value = empId;
+  
+  const modal = new bootstrap.Modal(document.getElementById('confirmReturnModal'));
+  modal.show();
+  
+  // Handle confirmation
+  document.getElementById('confirmReturnBtn').onclick = function() {
+    modal.hide();
+    showSpinner();
+    document.getElementById('returnForm').submit();
+  };
+}
+
+// QR Return Scanner Functions
+let qrReturnScanner = null;
+let currentReturnBooking = null;
+
+function openQRReturnScanner(bookId, empId) {
+  currentReturnBooking = { bookId: bookId, empId: empId };
+  
+  const modal = new bootstrap.Modal(document.getElementById('qrReturnModal'));
+  modal.show();
+  
+  // Initialize scanner when modal is shown
+  document.getElementById('qrReturnModal').addEventListener('shown.bs.modal', function() {
+    initializeQRReturnScanner();
+  });
+  
+  // Clean up when modal is hidden
+  document.getElementById('qrReturnModal').addEventListener('hidden.bs.modal', function() {
+    if (qrReturnScanner) {
+      qrReturnScanner.clear();
+      qrReturnScanner = null;
+    }
+    currentReturnBooking = null;
+  });
+}
+
+function initializeQRReturnScanner() {
+  if (qrReturnScanner) {
+    qrReturnScanner.clear();
+  }
+  
+  qrReturnScanner = new Html5Qrcode("qr-return-reader");
+  
+  const config = {
+    fps: 10,
+    qrbox: { width: 250, height: 250 }
+  };
+  
+  qrReturnScanner.start(
+    { facingMode: "environment" }, // Use back camera
+    config,
+    onQRReturnScanSuccess,
+    onQRReturnScanFailure
+  ).catch(err => {
+    console.error("Error starting QR return scanner:", err);
+    showToast('Failed to start camera. Please check permissions.', 'danger');
+  });
+}
+
+function onQRReturnScanSuccess(decodedText, decodedResult) {
+  console.log("QR Return Code scanned:", decodedText);
+  
+  // Stop the scanner
+  if (qrReturnScanner) {
+    qrReturnScanner.stop();
+  }
+  
+  // Parse the QR code content
+  const qrData = parseQRCodeData(decodedText);
+  
+  if (qrData && qrData.empid) {
+    // Verify the scanned employee ID matches the booking
+    if (String(qrData.empid) === String(currentReturnBooking.empId)) {
+      // Proceed with QR return
+      performQRReturn(currentReturnBooking.bookId, qrData.empid);
+    } else {
+      showToast('QR code does not match booking employee', 'danger');
+      // Restart scanner after error
+      setTimeout(() => {
+        if (qrReturnScanner) {
+          initializeQRReturnScanner();
+        }
+      }, 2000);
+    }
+  } else {
+    showToast('Invalid QR code format. Expected empid=X', 'warning');
+    // Restart scanner after error
+    setTimeout(() => {
+      if (qrReturnScanner) {
+        initializeQRReturnScanner();
+      }
+    }, 2000);
+  }
+}
+
+function onQRReturnScanFailure(error) {
+  // Ignore common scanning errors
+  if (error && !error.includes("No QR code found")) {
+    console.log("QR return scan error:", error);
+  }
+}
+
+async function performQRReturn(bookId, empId) {
+  try {
+    showSpinner();
+    
+    const response = await fetch('/qr-return', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ bookid: bookId, empid: empId })
+    });
+    
+    const result = await response.json();
+    
+    hideSpinner();
+    
+    if (result.status === 'success') {
+      showToast(result.message, 'success');
+      
+      // Close the modal
+      const modal = bootstrap.Modal.getInstance(document.getElementById('qrReturnModal'));
+      modal.hide();
+      
+      // Redirect after a short delay
+      setTimeout(() => {
+        if (result.redirect) {
+          window.location.href = result.redirect;
+        } else {
+          window.location.reload();
+        }
+      }, 1000);
+    } else {
+      showToast(result.message || 'Return failed', 'danger');
+      // Restart scanner after error
+      setTimeout(() => {
+        if (qrReturnScanner) {
+          initializeQRReturnScanner();
+        }
+      }, 2000);
+    }
+  } catch (error) {
+    hideSpinner();
+    console.error('QR return error:', error);
+    showToast('Network error during return', 'danger');
+    // Restart scanner after error
+    setTimeout(() => {
+      if (qrReturnScanner) {
+        initializeQRReturnScanner();
+      }
+    }, 2000);
+  }
+}
+
+// Make functions globally available
+window.openQRReturnScanner = openQRReturnScanner;
+
+// Initialize tabs with Bootstrap
+document.addEventListener('DOMContentLoaded', function() {
+  // Add tab switching functionality
+  const tabElements = document.querySelectorAll('button[data-bs-toggle="tab"]');
+  tabElements.forEach(tab => {
+    tab.addEventListener('click', function(e) {
+      e.preventDefault();
+      const target = this.getAttribute('data-bs-target');
+      const tabContent = document.querySelector(target);
+      
+      // Hide all tab contents
+      document.querySelectorAll('.tab-pane').forEach(pane => {
+        pane.classList.remove('show', 'active');
+      });
+      
+      // Remove active class from all tabs
+      tabElements.forEach(t => t.classList.remove('active'));
+      
+      // Show target tab content and activate tab
+      tabContent.classList.add('show', 'active');
+      this.classList.add('active');
+    });
+  });
+});
+</script>
+{% endblock %}

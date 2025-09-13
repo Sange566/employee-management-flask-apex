@@ -1,0 +1,297 @@
+{% extends "layout.html" %}
+
+{% block title %}Available Equipment - TechInnovators{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h3 mb-0">
+                        <i class="fas fa-boxes text-primary me-2"></i>
+                        Available Equipment
+                    </h1>
+                    <p class="text-muted mb-0">Browse and request equipment for your projects.</p>
+                </div>
+                <div>
+                    <a href="{{ url_for('employee_dashboard') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>
+                        Back to Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search and Filter -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas fa-search"></i>
+                                </span>
+                                <input type="text" class="form-control" id="searchInput" placeholder="Search equipment...">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <select class="form-select" id="categoryFilter">
+                                <option value="">All Categories</option>
+                                <option value="Electronics">Electronics</option>
+                                <option value="Tools">Tools</option>
+                                <option value="Computers">Computers</option>
+                                <option value="Gaming">Gaming</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <select class="form-select" id="availabilityFilter">
+                                <option value="">All Items</option>
+                                <option value="available">Available Only</option>
+                                <option value="low">Low Stock</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Equipment Grid -->
+    <div class="row" id="equipmentGrid">
+        {% if inventory %}
+            {% for item in inventory %}
+            <div class="col-lg-4 col-md-6 mb-4 equipment-card" 
+                 data-name="{{ item.t_item_name|lower }}" 
+                 data-category="{{ item.t_item_category|default('')|lower }}"
+                 data-quantity="{{ item.t_item_quantity }}">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body d-flex flex-column">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <h5 class="card-title mb-0">{{ item.t_item_name or 'Unknown Item' }}</h5>
+                            <span class="badge bg-{% if item.t_item_quantity == 0 %}danger{% elif item.t_item_quantity < 3 %}warning{% else %}success{% endif %}">
+                                {% if item.t_item_quantity == 0 %}
+                                    <i class="fas fa-times me-1"></i>Out of Stock
+                                {% elif item.t_item_quantity < 3 %}
+                                    <i class="fas fa-exclamation-triangle me-1"></i>Low Stock
+                                {% else %}
+                                    <i class="fas fa-check me-1"></i>Available
+                                {% endif %}
+                            </span>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <small class="text-muted">
+                                <i class="fas fa-tag me-1"></i>
+                                Category: {{ item.t_item_category or 'N/A' }}
+                            </small>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <small class="text-muted">
+                                <i class="fas fa-hashtag me-1"></i>
+                                Item ID: {{ item.t_item_id }}
+                            </small>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <small class="text-muted">
+                                <i class="fas fa-layer-group me-1"></i>
+                                Quantity Available: <strong>{{ item.t_item_quantity or 0 }}</strong>
+                            </small>
+                        </div>
+                        
+                        <div class="mt-auto">
+                            {% if item.t_item_quantity > 0 %}
+                                <button class="btn btn-primary w-100" onclick="requestEquipment({{ item.t_item_id }}, '{{ item.t_item_name }}')">
+                                    <i class="fas fa-plus me-2"></i>
+                                    Request This Item
+                                </button>
+                            {% else %}
+                                <button class="btn btn-secondary w-100" disabled>
+                                    <i class="fas fa-ban me-2"></i>
+                                    Not Available
+                                </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="col-12">
+                <div class="text-center py-5">
+                    <i class="fas fa-box-open fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">No Equipment Available</h5>
+                    <p class="text-muted">There are currently no equipment items available for request.</p>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Request Equipment Modal -->
+<div class="modal fade" id="requestModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Request Equipment</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="requestForm">
+                    <input type="hidden" id="requestItemId" name="inventory_id">
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Equipment</label>
+                        <div class="form-control-plaintext" id="requestItemName"></div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="startDate" class="form-label">Start Date</label>
+                        <input type="date" class="form-control" id="startDate" name="start_date" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="endDate" class="form-label">End Date</label>
+                        <input type="date" class="form-control" id="endDate" name="end_date" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="purpose" class="form-label">Purpose/Notes</label>
+                        <textarea class="form-control" id="purpose" name="purpose" rows="3" 
+                                  placeholder="Describe what you'll use this equipment for..." required></textarea>
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Note:</strong> Your request will be submitted for approval. You'll be notified once it's processed.
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="submitRequest()">Submit Request</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Search functionality
+document.getElementById('searchInput').addEventListener('input', filterEquipment);
+document.getElementById('categoryFilter').addEventListener('change', filterEquipment);
+document.getElementById('availabilityFilter').addEventListener('change', filterEquipment);
+
+function filterEquipment() {
+    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+    const categoryFilter = document.getElementById('categoryFilter').value.toLowerCase();
+    const availabilityFilter = document.getElementById('availabilityFilter').value;
+    const cards = document.querySelectorAll('.equipment-card');
+    
+    cards.forEach(card => {
+        const name = card.dataset.name;
+        const category = card.dataset.category;
+        const quantity = parseInt(card.dataset.quantity);
+        
+        let show = true;
+        
+        // Search filter
+        if (searchTerm && !name.includes(searchTerm)) {
+            show = false;
+        }
+        
+        // Category filter
+        if (categoryFilter && !category.includes(categoryFilter)) {
+            show = false;
+        }
+        
+        // Availability filter
+        if (availabilityFilter === 'available' && quantity <= 0) {
+            show = false;
+        } else if (availabilityFilter === 'low' && quantity >= 3) {
+            show = false;
+        }
+        
+        card.style.display = show ? 'block' : 'none';
+    });
+}
+
+function requestEquipment(itemId, itemName) {
+    document.getElementById('requestItemId').value = itemId;
+    document.getElementById('requestItemName').textContent = itemName;
+    
+    // Set default dates
+    const today = new Date().toISOString().split('T')[0];
+    const nextWeek = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+    
+    document.getElementById('startDate').value = today;
+    document.getElementById('endDate').value = nextWeek;
+    
+    new bootstrap.Modal(document.getElementById('requestModal')).show();
+}
+
+function submitRequest() {
+    const form = document.getElementById('requestForm');
+    const formData = new FormData(form);
+    
+    // Validate dates
+    const startDate = new Date(formData.get('start_date'));
+    const endDate = new Date(formData.get('end_date'));
+    
+    if (endDate < startDate) {
+        showToast('End date must be after start date', 'danger');
+        return;
+    }
+    
+    fetch('/employee/bookings/request', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            showToast('Equipment request submitted successfully!', 'success');
+            bootstrap.Modal.getInstance(document.getElementById('requestModal')).hide();
+            form.reset();
+        } else {
+            showToast(data.error || 'Failed to submit request', 'danger');
+        }
+    })
+    .catch(error => {
+        showToast('Error submitting request', 'danger');
+    });
+}
+
+function showToast(message, type) {
+    const toastContainer = document.getElementById('toast-container');
+    const toastId = 'toast-' + Date.now();
+    
+    const toastHTML = `
+        <div class="toast" id="${toastId}" role="alert">
+            <div class="toast-header">
+                <i class="fas fa-${type === 'success' ? 'check-circle text-success' : 'exclamation-triangle text-danger'} me-2"></i>
+                <strong class="me-auto">${type === 'success' ? 'Success' : 'Error'}</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body">${message}</div>
+        </div>
+    `;
+    
+    toastContainer.insertAdjacentHTML('beforeend', toastHTML);
+    const toast = new bootstrap.Toast(document.getElementById(toastId));
+    toast.show();
+    
+    // Remove toast element after it's hidden
+    document.getElementById(toastId).addEventListener('hidden.bs.toast', function() {
+        this.remove();
+    });
+}
+</script>
+{% endblock %}

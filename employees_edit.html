@@ -1,0 +1,86 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<div class="row">
+  <div class="col-lg-8 offset-lg-2">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div>
+        <h2 class="mb-1">
+          <i class="fas fa-user-edit text-warning"></i> Edit Employee
+        </h2>
+        <p class="text-muted mb-0">Update employee information</p>
+      </div>
+      <div>
+        <a href="{{ url_for('employees') }}" class="btn btn-outline-secondary">
+          <i class="fas fa-arrow-left"></i> Back to Employees
+        </a>
+      </div>
+    </div>
+
+    <!-- Edit Employee Form -->
+    <div class="card shadow-sm">
+      <div class="card-header bg-warning text-dark">
+        <h5 class="card-title mb-0">
+          <i class="fas fa-user-edit"></i> Employee Information
+        </h5>
+      </div>
+      <div class="card-body">
+        <form method="post" novalidate>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label for="t_emp_fname" class="form-label fw-bold">
+                First Name <span class="text-danger">*</span>
+              </label>
+              <input type="text" 
+                     class="form-control" 
+                     id="t_emp_fname" 
+                     name="t_emp_fname" 
+                     value="{{ employee.t_emp_fname }}"
+                     placeholder="Enter first name"
+                     required>
+            </div>
+            <div class="col-md-6">
+              <label for="t_emp_lname" class="form-label fw-bold">
+                Last Name <span class="text-danger">*</span>
+              </label>
+              <input type="text" 
+                     class="form-control" 
+                     id="t_emp_lname" 
+                     name="t_emp_lname" 
+                     value="{{ employee.t_emp_lname }}"
+                     placeholder="Enter last name"
+                     required>
+            </div>
+            <div class="col-12">
+              <label for="t_emp_dept" class="form-label fw-bold">
+                Department <span class="text-danger">*</span>
+              </label>
+              <select class="form-select" id="t_emp_dept" name="t_emp_dept" required>
+                <option value="">Select Department</option>
+                <option value="IT" {% if employee.t_emp_dept == 'IT' %}selected{% endif %}>IT</option>
+                <option value="Engineering" {% if employee.t_emp_dept == 'Engineering' %}selected{% endif %}>Engineering</option>
+                <option value="Marketing" {% if employee.t_emp_dept == 'Marketing' %}selected{% endif %}>Marketing</option>
+                <option value="HR" {% if employee.t_emp_dept == 'HR' %}selected{% endif %}>HR</option>
+                <option value="Finance" {% if employee.t_emp_dept == 'Finance' %}selected{% endif %}>Finance</option>
+                <option value="Operations" {% if employee.t_emp_dept == 'Operations' %}selected{% endif %}>Operations</option>
+                <option value="Sales" {% if employee.t_emp_dept == 'Sales' %}selected{% endif %}>Sales</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="mt-4">
+            <button type="submit" class="btn btn-warning px-4">
+              <i class="fas fa-save"></i> Update Employee
+            </button>
+            <a href="{{ url_for('employees') }}" class="btn btn-outline-secondary ms-2">
+              <i class="fas fa-times"></i> Cancel
+            </a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,283 @@
+{% extends "layout.html" %}
+
+{% block title %}QR Code Login - TechInnovators{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h3 mb-0">
+                        <i class="fas fa-qrcode text-primary me-2"></i>
+                        QR Code Login
+                    </h1>
+                    <p class="text-muted mb-0">Generate QR codes for quick employee and admin login.</p>
+                </div>
+                <div>
+                    <button class="btn btn-primary" onclick="generateAllQRCodes()">
+                        <i class="fas fa-sync-alt me-2"></i>
+                        Generate All QR Codes
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin QR Code Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-user-shield me-2"></i>
+                        Admin Login QR Code
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-4 text-center">
+                            <div id="admin-qr-container" class="qr-code-container">
+                                <div class="qr-placeholder">
+                                    <i class="fas fa-qrcode fa-3x text-muted"></i>
+                                    <p class="text-muted mt-2">Click to generate</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <h6>Admin Access</h6>
+                            <p class="text-muted">Scan this QR code to login as administrator with full system access.</p>
+                            <div class="mb-3">
+                                <strong>Username:</strong> admin<br>
+                                <strong>Access Level:</strong> Full System Access
+                            </div>
+                            <button class="btn btn-outline-primary" onclick="generateAdminQR()">
+                                <i class="fas fa-qrcode me-2"></i>
+                                Generate Admin QR Code
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Employee QR Codes Section -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-users me-2"></i>
+                        Employee Login QR Codes
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if employees %}
+                        <div class="row" id="employee-qr-grid">
+                            {% for employee in employees %}
+                            <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                                <div class="card h-100">
+                                    <div class="card-body text-center">
+                                        <div class="qr-code-container mb-3" id="qr-{{ employee.t_empid }}">
+                                            <div class="qr-placeholder">
+                                                <i class="fas fa-qrcode fa-2x text-muted"></i>
+                                                <p class="text-muted small mt-1">Click to generate</p>
+                                            </div>
+                                        </div>
+                                        <h6 class="card-title">{{ employee.t_emp_fname }} {{ employee.t_emp_lname }}</h6>
+                                        <p class="text-muted small mb-2">
+                                            ID: {{ employee.t_empid }}<br>
+                                            {{ employee.t_emp_dept }}
+                                        </p>
+                                        <button class="btn btn-sm btn-outline-primary" 
+                                                onclick="generateEmployeeQR({{ employee.t_empid }}, '{{ employee.t_emp_fname }} {{ employee.t_emp_lname }}')">
+                                            <i class="fas fa-qrcode me-1"></i>
+                                            Generate QR
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">No Employees Found</h5>
+                            <p class="text-muted">No employee data available to generate QR codes.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Instructions -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-info-circle me-2"></i>
+                        How to Use QR Code Login
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-mobile-alt me-2"></i>For Mobile Users:</h6>
+                            <ol>
+                                <li>Generate the appropriate QR code</li>
+                                <li>Save the QR code image to your phone</li>
+                                <li>Go to the login page on your computer</li>
+                                <li>Click "Scan QR Code" and use your phone's camera</li>
+                                <li>Point your phone's camera at the QR code</li>
+                                <li>You'll be automatically logged in!</li>
+                            </ol>
+                        </div>
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-desktop me-2"></i>For Desktop Users:</h6>
+                            <ol>
+                                <li>Generate the appropriate QR code</li>
+                                <li>Print the QR code or display it on another device</li>
+                                <li>Go to the login page</li>
+                                <li>Click "Scan QR Code"</li>
+                                <li>Allow camera access when prompted</li>
+                                <li>Point your camera at the QR code</li>
+                                <li>You'll be automatically logged in!</li>
+                            </ol>
+                        </div>
+                    </div>
+                    <div class="alert alert-info mt-3">
+                        <i class="fas fa-lightbulb me-2"></i>
+                        <strong>Pro Tip:</strong> QR codes work immediately and don't expire. Save them for future use!
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Generate Admin QR Code
+async function generateAdminQR() {
+    const container = document.getElementById('admin-qr-container');
+    const placeholder = container.querySelector('.qr-placeholder');
+    
+    try {
+        placeholder.innerHTML = '<div class="spinner-border text-primary" role="status"><span class="visually-hidden">Generating...</span></div>';
+        
+        const response = await fetch('/generate-qr/admin');
+        const result = await response.json();
+        
+        if (result.status === 'success') {
+            placeholder.innerHTML = `<img src="${result.qr_code}" alt="Admin QR Code" class="img-fluid" style="max-width: 200px;">`;
+        } else {
+            throw new Error(result.error || 'Failed to generate QR code');
+        }
+    } catch (error) {
+        console.error('Error generating admin QR:', error);
+        placeholder.innerHTML = '<div class="text-danger"><i class="fas fa-exclamation-triangle"></i><br>Error generating QR code</div>';
+    }
+}
+
+// Generate Employee QR Code
+async function generateEmployeeQR(employeeId, employeeName) {
+    const container = document.getElementById(`qr-${employeeId}`);
+    const placeholder = container.querySelector('.qr-placeholder');
+    
+    try {
+        placeholder.innerHTML = '<div class="spinner-border text-primary" role="status"><span class="visually-hidden">Generating...</span></div>';
+        
+        const response = await fetch(`/generate-qr/employee/${employeeId}`);
+        const result = await response.json();
+        
+        if (result.status === 'success') {
+            placeholder.innerHTML = `<img src="${result.qr_code}" alt="QR Code for ${employeeName}" class="img-fluid" style="max-width: 150px;">`;
+        } else {
+            throw new Error(result.error || 'Failed to generate QR code');
+        }
+    } catch (error) {
+        console.error('Error generating employee QR:', error);
+        placeholder.innerHTML = '<div class="text-danger"><i class="fas fa-exclamation-triangle"></i><br>Error generating QR code</div>';
+    }
+}
+
+// Generate All QR Codes
+async function generateAllQRCodes() {
+    // Generate admin QR first
+    await generateAdminQR();
+    
+    // Generate all employee QR codes
+    const employeeButtons = document.querySelectorAll('[onclick^="generateEmployeeQR"]');
+    for (const button of employeeButtons) {
+        const onclick = button.getAttribute('onclick');
+        const match = onclick.match(/generateEmployeeQR\((\d+), '([^']+)'\)/);
+        if (match) {
+            const employeeId = parseInt(match[1]);
+            const employeeName = match[2];
+            await generateEmployeeQR(employeeId, employeeName);
+            // Small delay between generations
+            await new Promise(resolve => setTimeout(resolve, 100));
+        }
+    }
+    
+    showToast('All QR codes generated successfully!', 'success');
+}
+
+function showToast(message, type) {
+    const toastContainer = document.getElementById('toast-container');
+    const toastId = 'toast-' + Date.now();
+    
+    const toastHTML = `
+        <div class="toast" id="${toastId}" role="alert">
+            <div class="toast-header">
+                <i class="fas fa-${type === 'success' ? 'check-circle text-success' : 'exclamation-triangle text-danger'} me-2"></i>
+                <strong class="me-auto">${type === 'success' ? 'Success' : 'Error'}</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body">${message}</div>
+        </div>
+    `;
+    
+    toastContainer.insertAdjacentHTML('beforeend', toastHTML);
+    const toast = new bootstrap.Toast(document.getElementById(toastId));
+    toast.show();
+    
+    // Remove toast element after it's hidden
+    document.getElementById(toastId).addEventListener('hidden.bs.toast', function() {
+        this.remove();
+    });
+}
+</script>
+
+<style>
+.qr-code-container {
+    min-height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px dashed #dee2e6;
+    border-radius: 8px;
+    background: #f8f9fa;
+}
+
+.qr-placeholder {
+    text-align: center;
+    color: #6c757d;
+}
+
+.qr-placeholder i {
+    display: block;
+    margin-bottom: 8px;
+}
+
+.qr-placeholder p {
+    margin: 0;
+    font-size: 0.875rem;
+}
+</style>
+{% endblock %}
